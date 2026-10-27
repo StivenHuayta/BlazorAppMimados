@@ -13,7 +13,17 @@
     private DateTime _fechaCreacion;
     private DateTime _fechaModificacion;
 
-    public int Id { get => _id; set => _id = value; }
+        public Servicio(int id, string nombre, string descripcion, double precioReferencial, int duracionMinutos, bool activo)
+        {
+            _id = id;
+            _nombre = nombre;
+            _descripcion = descripcion;
+            _precioReferencial = precioReferencial;
+            _duracionMinutos = duracionMinutos;
+            _activo = activo;
+        }
+        public Servicio() { }
+        public int Id { get => _id; set => _id = value; }
     public string Nombre { get => _nombre; set => _nombre = value; }
     public string Descripcion { get => _descripcion; set => _descripcion = value; }
     public double PrecioReferencial { get => _precioReferencial; set => _precioReferencial = value; }

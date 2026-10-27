@@ -10,7 +10,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Registrar Nueva Sede</h2>
         <button class="btn btn-secondary" @onclick="Volver">
-            <i class="bi bi-arrow-left"></i> Volver a Mis Mascotas
+            <i class="bi bi-arrow-left"></i> Volver 
         </button>
     </div>
 
@@ -82,6 +82,5 @@
     [Required(ErrorMessage = "El teléfono es obligatorio")]
     public string Telefono { get; set; } = string.Empty;
 
-    public bool Activo { get; set; } = true;
 }
 }
