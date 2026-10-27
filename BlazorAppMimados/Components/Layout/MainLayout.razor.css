@@ -18,3 +18,7 @@
         right: 0.75rem;
         top: 0.5rem;
     }
+
+.app-wrapper.sidebar-collapse .app-sidebar {
+    display: none !important;
+}
