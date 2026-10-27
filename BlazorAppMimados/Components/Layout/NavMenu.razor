@@ -1,40 +1,98 @@
-﻿<nav class="mt-2">
-    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+﻿@inject NavigationManager Navigation
 
-        @* Botón hacia tu RF-05: Gestión de mascotas *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/mascotas" Match="NavLinkMatch.All">
-                <i class="nav-icon bi bi-heart-pulse"></i>
-                <p>Mis Mascotas</p>
-            </NavLink>
-        </li>
+<div class="nav-scrollable">
+    <nav class="flex-column">
+        @if (esAdmin)
+        {
+            <!-- VISTA ADMINISTRADOR -->
+            <div class="px-3 my-2 text-uppercase text-muted small fw-bold">ADMINISTRACIÓN</div>
+            
+            <!-- NUEVO: Enlace a Inicio -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/inicio">
+                    <span class="bi bi-house-door-fill me-2" aria-hidden="true"></span> Inicio
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/empleados">
+                    <span class="bi bi-people-fill me-2" aria-hidden="true"></span> Empleados
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/horarios">
+                    <span class="bi bi-clock-fill me-2" aria-hidden="true"></span> Horarios
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/reportes/citas">
+                    <span class="bi bi-file-earmark-bar-graph-fill me-2" aria-hidden="true"></span> Reporte Citas
+                </NavLink>
+            </div>
 
-        @* Botón hacia tu RF-04: Datos del cliente *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/perfil">
-                <i class="nav-icon bi bi-person-circle"></i>
-                <p>Mi Perfil</p>
-            </NavLink>
-        </li>
+            <!-- SECCIÓN CUENTA EN ADMINISTRADOR -->
+            <div class="px-3 my-2 text-uppercase text-muted small fw-bold">CUENTA</div>
+            
+            <!-- NUEVO: Enlace a Perfil Admin -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/perfil">
+                    <span class="bi bi-person-fill me-2" aria-hidden="true"></span> Mi Perfil
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link text-danger" href="/login" Match="NavLinkMatch.All">
+                    <span class="bi bi-box-arrow-right me-2" aria-hidden="true"></span> Salir
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <!-- VISTA CLIENTE (Se mantiene igual) -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/cliente/mascotas">
+                    <span class="bi bi-heart-fill me-2" aria-hidden="true"></span> Mis Mascotas
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/cliente/citas/nueva">
+                    <span class="bi bi-calendar-plus-fill me-2" aria-hidden="true"></span> Reservar Cita
+                </NavLink>
+            </div>
 
-        @* Botón hacia el RF-03: Reservar Cita *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/citas/nueva">
-                <i class="nav-icon bi bi-calendar-plus"></i>
-                <p>Reservar Cita</p>
-            </NavLink>
-        </li>
+            <div class="px-3 my-2 text-uppercase text-muted small fw-bold">CUENTA</div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/cliente/perfil">
+                    <span class="bi bi-person-fill me-2" aria-hidden="true"></span> Mi Perfil
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link text-danger" href="/login" Match="NavLinkMatch.All">
+                    <span class="bi bi-box-arrow-right me-2" aria-hidden="true"></span> Salir
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
 
-        <!-- Separador -->
-        <li class="nav-header text-uppercase text-secondary mt-2">Cuenta</li>
+@code {
+    private bool esAdmin = false;
 
-        @* Botón para salir *@
-        <li class="nav-item">
-            <NavLink class="nav-link text-danger" href="login">
-                <i class="nav-icon bi bi-box-arrow-right"></i>
-                <p>Salir</p>
-            </NavLink>
-        </li>
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        ActualizarRolSegunRuta(Navigation.Uri);
+    }
 
-    </ul>
-</nav>
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        ActualizarRolSegunRuta(e.Location);
+        StateHasChanged();
+    }
+
+    private void ActualizarRolSegunRuta(string uri)
+    {
+        // Se agregó la condición "/admin" para que detecte las nuevas páginas
+        esAdmin = uri.Contains("/empleados") || uri.Contains("/horarios") || uri.Contains("/reportes") || uri.Contains("/admin");
+    }
+}

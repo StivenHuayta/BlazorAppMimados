@@ -36,12 +36,9 @@
                     <p class="mb-3"><strong>Peso ref:</strong> 15.5 kg</p>
                     
                     <div class="d-grid gap-2">
-
-                        <button class="btn btn-outline-primary" @onclick="() => IrAHistorial(1)">
+                        <button class="btn btn-outline-primary">
                             Ver Historial Clínico
                         </button>
-
-
                     </div>
                 </div>
                 <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
@@ -75,15 +72,9 @@
                     <p class="mb-3"><strong>Peso ref:</strong> 4.2 kg</p>
                     
                     <div class="d-grid gap-2">
-
-                        @*BOTON DE HISTORIAL *@
-                        <button class="btn btn-outline-primary" @onclick="() => IrAHistorial(2)">
+                        <button class="btn btn-outline-primary">
                             Ver Historial Clínico
-
                         </button>
-
-
-
                     </div>
                 </div>
                 <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
@@ -121,9 +112,5 @@
 
     }
 
-    public void IrAHistorial(int id)
-    {
-        Nav.NavigateTo($"/cliente/mascotas/{id}/historial");
-    }
 
 }

@@ -1,91 +1,87 @@
 @page "/login"
-@rendermode InteractiveServer
-@layout Layout.BlankLayout 
-@using System.ComponentModel.DataAnnotations
+@page "/cliente/login"
+@using System.Text.RegularExpressions
+@layout Layout.BlankLayout
+@rendermode InteractiveServer 
+@inject NavigationManager Navigation
 
-@inject NavigationManager Nav
-
-<div class="container" style="max-width: 420px;">
-    <div class="card border-0 shadow-lg rounded-4 p-4 p-sm-5 bg-white">
-        <div class="text-center mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3" style="width: 64px; height: 64px; font-size: 2rem;">
-                🐾
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card p-4 shadow border-0 bg-white" style="width: 400px; border-radius: 8px;">
+        
+        <h3 class="text-center mb-4 fw-bold text-success">
+            🐾 Mimados Vet
+        </h3>
+        
+        <!-- Alerta para mostrar mensajes de error -->
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger py-2 mb-3 text-center fw-bold small" role="alert">
+                @mensajeError
             </div>
-            <h3 class="fw-bold text-dark mb-1">Mimados Vet</h3>
-            <p class="text-secondary small">Sistema de Gestión Clínica Veterinaria</p>
-        </div>
+        }
 
-        <EditForm Model="@credenciales" OnValidSubmit="Ingresar">
-            <DataAnnotationsValidator />
-
+        <div>
             <div class="mb-3">
-                <label class="form-label fw-semibold small text-secondary">Correo electrónico</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
-                    <InputText @bind-Value="credenciales.Email" class="form-control border-start-0 ps-1" placeholder="correo@ejemplo.com" />
-                </div>
-                <ValidationMessage For="@(() => credenciales.Email)" class="text-danger small mt-1" />
+                <label class="form-label fw-bold text-dark">Usuario</label>
+                <!-- Vinculamos el input a la variable 'correo' -->
+                <input type="email" class="form-control bg-white text-dark" placeholder="correo@ejemplo.com" @bind="correo" />
             </div>
-
+            
             <div class="mb-3">
-                <label class="form-label fw-semibold small text-secondary">Contraseña</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
-                    <InputText @bind-Value="credenciales.Password" type="password" class="form-control border-start-0 ps-1" placeholder="••••••••" />
-                </div>
-                <ValidationMessage For="@(() => credenciales.Password)" class="text-danger small mt-1" />
+                <label class="form-label fw-bold text-dark">Contraseña</label>
+                <!-- Vinculamos el input a la variable 'contrasena' -->
+                <input type="password" class="form-control bg-white text-dark" placeholder="Ingrese su contraseña" @bind="contrasena" />
             </div>
-
-            @* Selector temporal solo para la maqueta gráfica: permite probar los 3 entornos *@
+            
             <div class="mb-4">
-                <label class="form-label fw-semibold small text-secondary">Simular ingreso como (UI demo):</label>
-                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select bg-light">
+                <label class="form-label fw-bold text-dark">Ingresar como:</label>
+                <select class="form-select bg-white text-dark" @bind="rolSeleccionado">
                     <option value="Cliente">Cliente</option>
-                    <option value="Veterinario">Personal Veterinario</option>
-                    <option value="Admin">Administrador</option>
-                </InputSelect>
+                    <option value="Administrador">Administrador</option>
+                </select>
             </div>
-
-            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold shadow-sm">
-                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+            
+            <button type="button" class="btn btn-success w-100 fw-bold" @onclick="IniciarSesion">
+                Ingresar
             </button>
-        </EditForm>
-
-        <hr class="my-4 opacity-25" />
-        <div class="text-center small">
-            <span class="text-muted">¿No tienes cuenta? </span>
-            <a href="/registro" class="fw-semibold text-success text-decoration-none">Regístrate aquí</a>
         </div>
+        
     </div>
 </div>
 
 @code {
-    private LoginModel credenciales = new LoginModel();
+    private string correo = "";
+    private string contrasena = "";
+    private string rolSeleccionado = "Cliente";
+    private string mensajeError = "";
 
-    private void Ingresar()
+    private void IniciarSesion()
     {
-        // Activa la sesión con el rol elegido
-        //AuthProvider.IniciarSesionSimulada(credenciales.Email, credenciales.RolSimulado);
+        mensajeError = ""; // Limpiar errores previos
 
-        // Redirige según el rol (Diapositiva 37: uso de NavigationManager)
-        if (credenciales.RolSimulado == "Cliente")
+        // 1. Validar que los campos no estén vacíos
+        if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
         {
-            Nav.NavigateTo("/cliente/mascotas");
+            mensajeError = "Por favor, complete todos los campos.";
+            return; // Detiene la ejecución
+        }
+
+        // 2. Validar formato de correo usando una expresión regular
+        bool correoValido = Regex.IsMatch(correo, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        if (!correoValido)
+        {
+            mensajeError = "Por favor, ingrese un formato de correo válido (ej: nombre@dominio.com).";
+            return; // Detiene la ejecución
+        }
+
+        // 3. Si pasa las validaciones, procede con la redirección
+        if (rolSeleccionado == "Administrador")
+        {
+            Navigation.NavigateTo("/admin/inicio");
         }
         else
         {
-            Nav.NavigateTo("/");
+            Navigation.NavigateTo("/cliente/mascotas");
         }
-    }
-
-    public class LoginModel
-    {
-        [Required(ErrorMessage = "El correo es obligatorio")]
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        public string Password { get; set; } = string.Empty;
-
-        public string RolSimulado { get; set; } = "Cliente";
     }
 }
