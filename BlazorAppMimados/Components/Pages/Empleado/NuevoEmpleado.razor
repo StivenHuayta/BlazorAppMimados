@@ -1,0 +1,77 @@
+﻿@page "/empleados/nuevo"
+@inject NavigationManager Navigation
+
+<div class="mb-4">
+    <h3 class="m-0 text-dark fw-bold">Registrar Empleado</h3>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title m-0 fw-bold">Datos del Empleado</h5>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">DNI</label>
+                    <input type="text" class="form-control" placeholder="Ingrese DNI (8 dígitos)" maxlength="8" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Nombres</label>
+                    <input type="text" class="form-control" placeholder="Nombres" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Apellidos</label>
+                    <input type="text" class="form-control" placeholder="Apellidos" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Teléfono</label>
+                    <input type="text" class="form-control" placeholder="999888777" maxlength="9" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Correo Electrónico</label>
+                    <input type="email" class="form-control" placeholder="correo@ejemplo.com" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Fecha de Contratación</label>
+                    <input type="date" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Rol</label>
+                    <select class="form-select">
+                        <option value="0">Veterinario</option>
+                        <option value="1">Administrador</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Código CMP (Si es veterinario)</label>
+                    <input type="text" class="form-control" placeholder="Ej: CMP-10293" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Sede Asignada</label>
+                    <select class="form-select">
+                        <option value="1">Sede Central</option>
+                        <option value="2">Sede Norte</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer bg-light d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" @onclick="Volver">Cancelar</button>
+        <button type="button" class="btn btn-success fw-bold" @onclick="Volver">Guardar Empleado</button>
+    </div>
+</div>
+
+@code {
+    private void Volver()
+    {
+        Navigation.NavigateTo("/empleados");
+    }
+}
