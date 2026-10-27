@@ -1,0 +1,78 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@layout Layout.BlankLayout 
+@using System.ComponentModel.DataAnnotations
+
+@inject NavigationManager Nav
+
+<div class="container mt-5" style="max-width: 400px;">
+    <div class="card p-4">
+        <h3 class="mb-3">Iniciar Sesión - Mimados</h3>
+
+        <EditForm Model="@credenciales" OnValidSubmit="Ingresar">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label>Correo electrónico:</label>
+                <InputText @bind-Value="credenciales.Email" class="form-control" placeholder="correo@ejemplo.com" />
+                <ValidationMessage For="@(() => credenciales.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label>Contraseña:</label>
+                <InputText @bind-Value="credenciales.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => credenciales.Password)" />
+            </div>
+
+            @* Selector temporal solo para la maqueta gráfica: permite probar los 3 entornos *@
+            <div class="mb-3">
+                <label class="text-muted small">Simular ingreso como (Solo prueba UI):</label>
+                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select">
+                    <option value="Cliente">Cliente</option>
+                    <option value="Veterinario">Personal Veterinario</option>
+                    <option value="Admin">Administrador</option>
+                </InputSelect>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </EditForm>
+
+        <hr />
+        <div class="text-center">
+            <span>¿No tienes cuenta? </span>
+            <a href="/registro">Regístrate aquí</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel credenciales = new LoginModel();
+
+    private void Ingresar()
+    {
+        // Activa la sesión con el rol elegido
+        //AuthProvider.IniciarSesionSimulada(credenciales.Email, credenciales.RolSimulado);
+
+        // Redirige según el rol (Diapositiva 37: uso de NavigationManager)
+        if (credenciales.RolSimulado == "Cliente")
+        {
+            Nav.NavigateTo("/cliente/mascotas");
+        }
+        else
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        public string Password { get; set; } = string.Empty;
+
+        public string RolSimulado { get; set; } = "Cliente";
+    }
+}

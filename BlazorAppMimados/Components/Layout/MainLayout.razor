@@ -1,9 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div class="page">
+    @* Aquí es donde "llamamos" a tu componente NavMenu *@
+    <div class="sidebar">
+        <NavMenu />
+    </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <main>
+        @* Barra superior (opcional, pero buena práctica) *@
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">Acerca de</a>
+        </div>
+
+        @* El contenedor @Body es mágico: aquí Blazor inyecta el HTML de tus páginas (@page) *@
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
 </div>

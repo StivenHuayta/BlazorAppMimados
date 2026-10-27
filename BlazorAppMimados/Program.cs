@@ -1,4 +1,4 @@
-using BlazorAppMimados.Components;
+using Mimados_WebApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

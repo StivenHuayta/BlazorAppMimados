@@ -1,0 +1,116 @@
+﻿@page "/cliente/mascotas"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+
+<div class="container mt-4">
+    
+    @* Cabecera con título y botón de acción principal *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mis Mascotas</h2>
+
+
+
+        <button class="btn btn-success" @onclick=" IrANuevaMascota">
+            + Registrar Nueva Mascota
+        </button>
+
+
+
+
+    </div>
+
+    @* Grilla de Tarjetas usando Bootstrap *@
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        
+        @* Tarjeta de Mascota 1 (Datos simulados estáticos) *@
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Firulais</h5>
+                    <span class="badge bg-light text-primary">Perro</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Raza:</strong> Mestizo</p>
+                    <p class="mb-1"><strong>Sexo:</strong> Macho</p>
+                    <p class="mb-1"><strong>Nacimiento:</strong> 10/05/2020</p>
+                    <p class="mb-3"><strong>Peso ref:</strong> 15.5 kg</p>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary">
+                            Ver Historial Clínico
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
+
+                    
+
+                    <button class="btn btn-warning btn-sm text-dark fw-bold" @onclick="() => IrAEditarMascota(1)">
+                    Editar
+                    </button>
+
+
+
+                    <button class="btn btn-danger btn-sm fw-bold">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta de Mascota 2 (Datos simulados estáticos) *@
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Michi</h5>
+                    <span class="badge bg-light text-primary">Gato</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Raza:</strong> Siamés</p>
+                    <p class="mb-1"><strong>Sexo:</strong> Hembra</p>
+                    <p class="mb-1"><strong>Nacimiento:</strong> 20/08/2022</p>
+                    <p class="mb-3"><strong>Peso ref:</strong> 4.2 kg</p>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary">
+                            Ver Historial Clínico
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
+
+                    <button class="btn btn-warning btn-sm text-dark fw-bold" @onclick="() => IrAEditarMascota(2)">
+                     Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm fw-bold">
+                        Eliminar
+                    </button>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@code{
+
+
+    public void IrANuevaMascota()
+    {
+        Nav.NavigateTo("/cliente/mascotas/nueva");
+
+    }
+
+
+    public void IrAEditarMascota(int id)
+    {
+        Nav.NavigateTo($"/cliente/mascotas/editar/{id}");
+
+    }
+
+
+}

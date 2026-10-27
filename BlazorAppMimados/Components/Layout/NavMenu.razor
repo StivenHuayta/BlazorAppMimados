@@ -1,0 +1,42 @@
+﻿@* Cabecera del menú con el nombre de tu proyecto *@
+<div class="top-row ps-3 navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="cliente/mascotas">🐾 Mimados</a>
+    </div>
+</div>
+
+<div class="nav-scrollable">
+    <nav class="flex-column mt-3">
+        
+        @* Botón hacia tu RF-05 *@
+        <div class="nav-item px-3 mb-2">
+            <NavLink class="nav-link text-dark" href="cliente/mascotas" Match="NavLinkMatch.All">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Mis Mascotas
+            </NavLink>
+        </div>
+
+        @* Botón hacia tu RF-04 *@
+        <div class="nav-item px-3 mb-2">
+            <NavLink class="nav-link text-dark" href="cliente/perfil">
+                <span class="bi bi-person" aria-hidden="true"></span> Mi Perfil
+            </NavLink>
+        </div>
+
+        @* Espacio reservado para el Integrante 2 (RF-03) *@
+        <div class="nav-item px-3 mb-2">
+            <NavLink class="nav-link text-dark" href="cliente/citas/nueva">
+                <span class="bi bi-calendar-plus" aria-hidden="true"></span> Reservar Cita
+            </NavLink>
+        </div>
+
+        <hr />
+
+        @* Botón para salir (por ahora solo manda al login) *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link text-danger" href="login">
+                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Salir
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
