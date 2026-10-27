@@ -36,9 +36,9 @@
                 <ValidationMessage For="@(() => credenciales.Password)" class="text-danger small mt-1" />
             </div>
 
-            @* Selector temporal solo para la maqueta gráfica: permite probar los 3 entornos *@
+            @* Tipo de usuario de acceso *@
             <div class="mb-4">
-                <label class="form-label fw-semibold small text-secondary">Simular ingreso como (UI demo):</label>
+                <label class="form-label fw-semibold small text-secondary">Tipo de usuario:</label>
                 <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select bg-light">
                     <option value="Cliente">Cliente</option>
                     <option value="Veterinario">Personal Veterinario</option>
@@ -64,13 +64,15 @@
 
     private void Ingresar()
     {
-        // Activa la sesión con el rol elegido
-        //AuthProvider.IniciarSesionSimulada(credenciales.Email, credenciales.RolSimulado);
-
-        // Redirige según el rol (Diapositiva 37: uso de NavigationManager)
+        // Redirige a las páginas del tipo de usuario seleccionado.
         if (credenciales.RolSimulado == "Cliente")
         {
             Nav.NavigateTo("/cliente/mascotas");
+        }
+        else if (credenciales.RolSimulado == "Veterinario")
+        {
+            // Acceso al módulo de citas del personal.
+            Nav.NavigateTo("/empleado/citas");
         }
         else
         {

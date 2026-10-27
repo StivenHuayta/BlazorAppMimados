@@ -1,40 +1,74 @@
-﻿<nav class="mt-2">
+@inject NavigationManager Navegacion
+@implements IDisposable
+
+<nav class="mt-2">
     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+        @if (EsPersonalVeterinario)
+        {
+            <li class="nav-header text-uppercase text-secondary mt-2">Personal Veterinario</li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="empleado/citas" Match="NavLinkMatch.Prefix">
+                    <i class="nav-icon bi bi-clipboard2-pulse"></i>
+                    <p>Gestión de Citas</p>
+                </NavLink>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item">
+                <NavLink class="nav-link" href="cliente/mascotas" Match="NavLinkMatch.All">
+                    <i class="nav-icon bi bi-heart-pulse"></i>
+                    <p>Mis Mascotas</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="cliente/perfil">
+                    <i class="nav-icon bi bi-person-circle"></i>
+                    <p>Mi Perfil</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="cliente/citas" Match="NavLinkMatch.All">
+                    <i class="nav-icon bi bi-calendar-check"></i>
+                    <p>Mis Citas</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="cliente/citas/disponibilidad">
+                    <i class="nav-icon bi bi-clock-history"></i>
+                    <p>Disponibilidad</p>
+                </NavLink>
+            </li>
+        }
 
-        @* Botón hacia tu RF-05: Gestión de mascotas *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/mascotas" Match="NavLinkMatch.All">
-                <i class="nav-icon bi bi-heart-pulse"></i>
-                <p>Mis Mascotas</p>
-            </NavLink>
-        </li>
-
-        @* Botón hacia tu RF-04: Datos del cliente *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/perfil">
-                <i class="nav-icon bi bi-person-circle"></i>
-                <p>Mi Perfil</p>
-            </NavLink>
-        </li>
-
-        @* Botón hacia el RF-03: Reservar Cita *@
-        <li class="nav-item">
-            <NavLink class="nav-link" href="cliente/citas/nueva">
-                <i class="nav-icon bi bi-calendar-plus"></i>
-                <p>Reservar Cita</p>
-            </NavLink>
-        </li>
-
-        <!-- Separador -->
         <li class="nav-header text-uppercase text-secondary mt-2">Cuenta</li>
-
-        @* Botón para salir *@
         <li class="nav-item">
             <NavLink class="nav-link text-danger" href="login">
                 <i class="nav-icon bi bi-box-arrow-right"></i>
                 <p>Salir</p>
             </NavLink>
         </li>
-
     </ul>
 </nav>
+
+@code {
+    // El rol se identifica con el área de navegación, sin autenticación ni backend.
+    private bool EsPersonalVeterinario =>
+        Navegacion.ToBaseRelativePath(Navegacion.Uri)
+            .StartsWith("empleado/", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        Navegacion.LocationChanged += ActualizarMenu;
+    }
+
+    private void ActualizarMenu(object? sender, LocationChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navegacion.LocationChanged -= ActualizarMenu;
+    }
+}
