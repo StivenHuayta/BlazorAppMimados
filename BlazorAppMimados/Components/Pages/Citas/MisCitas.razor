@@ -1,0 +1,72 @@
+@page "/cliente/citas"
+@rendermode InteractiveServer
+
+<PageTitle>Mis Citas - Mimados</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1">Mis Citas</h2>
+            <p class="text-muted mb-0">Consulta y administra tus reservas veterinarias.</p>
+        </div>
+        <a class="btn btn-success" href="/cliente/citas/nueva">
+            <i class="bi bi-calendar-plus me-1"></i> Reservar Nueva Cita
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 bg-light">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-check text-success me-2"></i>Mis reservas</h5>
+            <a class="btn btn-outline-success btn-sm" href="/cliente/citas/disponibilidad">Ver disponibilidad</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Código</th>
+                            <th>Mascota</th>
+                            <th>Servicio</th>
+                            <th>Fecha y hora</th>
+                            <th>Sede</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-3">C-001</td>
+                            <td>Firulais</td>
+                            <td>Consulta general</td>
+                            <td>04/11/2026, 10:00 a. m.</td>
+                            <td>San Miguel</td>
+                            <td><span class="badge bg-success">Confirmada</span></td>
+                            <td class="text-end pe-3">
+                                <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                    <a class="btn btn-outline-primary btn-sm" href="/cliente/citas/detalle/1">Ver</a>
+                                    <a class="btn btn-outline-warning btn-sm" href="/cliente/citas/editar/1">Editar</a>
+                                    <a class="btn btn-outline-danger btn-sm" href="/cliente/citas/cancelar/1">Cancelar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3">C-002</td>
+                            <td>Michi</td>
+                            <td>Vacunación</td>
+                            <td>07/11/2026, 03:30 p. m.</td>
+                            <td>Surco</td>
+                            <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                            <td class="text-end pe-3">
+                                <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                    <a class="btn btn-outline-primary btn-sm" href="/cliente/citas/detalle/2">Ver</a>
+                                    <a class="btn btn-outline-warning btn-sm" href="/cliente/citas/editar/2">Editar</a>
+                                    <a class="btn btn-outline-danger btn-sm" href="/cliente/citas/cancelar/2">Cancelar</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

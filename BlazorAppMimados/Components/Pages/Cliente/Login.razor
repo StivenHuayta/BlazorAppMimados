@@ -32,6 +32,11 @@
                 <!-- Vinculamos el input a la variable 'contrasena' -->
                 <input type="password" class="form-control bg-white text-dark" placeholder="Ingrese su contraseña" @bind="contrasena" />
             </div>
+
+            @* Tipo de usuario de acceso *@
+            <div class="mb-4">
+                <label class="form-label fw-semibold small text-secondary">Tipo de usuario:</label>
+                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select bg-light">
             
             <div class="mb-4">
                 <label class="form-label fw-bold text-dark">Ingresar como:</label>
@@ -57,6 +62,8 @@
 
     private void IniciarSesion()
     {
+        // Redirige a las páginas del tipo de usuario seleccionado.
+        if (credenciales.RolSimulado == "Cliente")
         mensajeError = ""; // Limpiar errores previos
 
         // 1. Validar que los campos no estén vacíos
@@ -65,6 +72,12 @@
             mensajeError = "Por favor, complete todos los campos.";
             return; // Detiene la ejecución
         }
+        else if (credenciales.RolSimulado == "Veterinario")
+        {
+            // Acceso al módulo de citas del personal.
+            Nav.NavigateTo("/empleado/citas");
+        }
+        else
 
         // 2. Validar formato de correo usando una expresión regular
         bool correoValido = Regex.IsMatch(correo, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
