@@ -1,0 +1,147 @@
+@page "/registro"
+@layout Layout.BlankLayout 
+
+
+@rendermode InteractiveServer
+
+
+
+@using System.ComponentModel.DataAnnotations
+
+
+
+
+@inject NavigationManager Nav
+
+<div class="container my-4" style="max-width: 720px;">
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-2" style="width: 52px; height: 52px; font-size: 1.6rem;">
+                🐾
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Registro de Nuevo Cliente</h3>
+            <p class="text-secondary small">Crea tu cuenta para gestionar la atención de tus mascotas</p>
+        </div>
+
+        <EditForm Model="@nuevoCliente" OnValidSubmit="Registrar">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">DNI:</label>
+                    <InputText @bind-Value="nuevoCliente.Dni" class="form-control" placeholder="8 dígitos" />
+                    <ValidationMessage For="@(() => nuevoCliente.Dni)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono:</label>
+                    <InputText @bind-Value="nuevoCliente.Telefono" class="form-control" placeholder="9 dígitos" />
+                    <ValidationMessage For="@(() => nuevoCliente.Telefono)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombres:</label>
+                    <InputText @bind-Value="nuevoCliente.Nombres" class="form-control" />
+                    <ValidationMessage For="@(() => nuevoCliente.Nombres)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Apellidos:</label>
+                    <InputText @bind-Value="nuevoCliente.Apellidos" class="form-control" />
+                    <ValidationMessage For="@(() => nuevoCliente.Apellidos)" class="text-danger small" />
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">Dirección:</label>
+                    <InputText @bind-Value="nuevoCliente.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => nuevoCliente.Direccion)" class="text-danger small" />
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label">Correo electrónico:</label>
+                    <InputText @bind-Value="nuevoCliente.Email" class="form-control" type="email" />
+                    <ValidationMessage For="@(() => nuevoCliente.Email)" class="text-danger small" />
+                </div>
+
+                @* Aquí agregamos los dos campos de contraseña *@
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Contraseña:</label>
+                    <InputText @bind-Value="nuevoCliente.Password" class="form-control" type="password" />
+                    <ValidationMessage For="@(() => nuevoCliente.Password)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Confirmar Contraseña:</label>
+                    <InputText @bind-Value="nuevoCliente.ConfirmarPassword" class="form-control" type="password" />
+                    <ValidationMessage For="@(() => nuevoCliente.ConfirmarPassword)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Contacto de Emergencia:</label>
+                    <InputText @bind-Value="nuevoCliente.ContactoEmergencia" class="form-control" placeholder="Nro de teléfono (Opcional)" />
+                    <ValidationMessage For="@(() => nuevoCliente.ContactoEmergencia)" class="text-danger small" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold shadow-sm mb-3">
+                <i class="bi bi-person-plus me-1"></i> Crear Cuenta
+            </button>
+
+            <div class="text-center small">
+                <span class="text-muted">¿Ya tienes una cuenta? </span>
+                <a href="/login" class="fw-semibold text-success text-decoration-none">Inicia sesión aquí</a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private ClienteRegistroModel nuevoCliente = new ClienteRegistroModel();
+
+    private void Registrar()
+    {
+        // Esto solo se ejecuta si TODOS los campos son válidos y las contraseñas coinciden
+        Console.WriteLine($"Usuario a registrar: {nuevoCliente.Nombres}");
+        Nav.NavigateTo("/");
+    }
+
+    public class ClienteRegistroModel
+    {
+        [Required(ErrorMessage = "El DNI es obligatorio")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El DNI debe tener exactamente 8 dígitos")]
+        public string Dni { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Los nombres son obligatorios")]
+        [StringLength(45, ErrorMessage = "Máximo 45 caracteres")]
+        public string Nombres { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Los apellidos son obligatorios")]
+        [StringLength(45, ErrorMessage = "Máximo 45 caracteres")]
+        public string Apellidos { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de correo inválido")]
+        [StringLength(100)]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El teléfono es obligatorio")]
+        [StringLength(9, MinimumLength = 9, ErrorMessage = "El teléfono debe tener 9 dígitos")]
+        public string Telefono { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La dirección es obligatoria")]
+        [StringLength(60)]
+        public string Direccion { get; set; } = string.Empty;
+
+        [StringLength(9, MinimumLength = 9, ErrorMessage = "Debe tener 9 dígitos")]
+        public string ContactoEmergencia { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(255)] // Coincide con password_hash VARCHAR(255) de tu BD
+        public string Password { get; set; } = string.Empty;
+
+        // La magia ocurre con la anotación [Compare]
+        [Required(ErrorMessage = "Debes confirmar tu contraseña")]
+        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]
+        public string ConfirmarPassword { get; set; } = string.Empty;
+    }
+}

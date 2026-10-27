@@ -1,0 +1,164 @@
+﻿@page "/cliente/perfil"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager Nav
+
+<div class="container mt-4" style="max-width: 800px;">
+    
+    @* Cabecera con botón destructivo *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mi Perfil</h2>
+        <button class="btn btn-outline-danger" @onclick="MostrarModalEliminar">
+            <i class="bi bi-trash"></i> Eliminar Cuenta
+        </button>
+    </div>
+
+    @* Alerta de Éxito Simulada *@
+    @if (mostrarAlertaGuardado)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            Tus datos han sido actualizados correctamente.
+            <button type="button" class="btn-close" @onclick="() => mostrarAlertaGuardado = false"></button>
+        </div>
+    }
+
+    <div class="card p-4 shadow-sm border-0">
+        
+        @* Formulario de Edición con DataAnnotationsValidator *@
+        <EditForm Model="@perfilCliente" OnValidSubmit="GuardarCambios">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                @* Campos de solo lectura (Llaves principales / Usuario) *@
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">DNI (No modificable):</label>
+                    <InputText @bind-Value="perfilCliente.Dni" class="form-control" disabled />
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">Correo electrónico (No modificable):</label>
+                    <InputText @bind-Value="perfilCliente.Email" class="form-control" disabled />
+                </div>
+
+                @* Campos Editables *@
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombres:</label>
+                    <InputText @bind-Value="perfilCliente.Nombres" class="form-control" />
+                    <ValidationMessage For="@(() => perfilCliente.Nombres)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Apellidos:</label>
+                    <InputText @bind-Value="perfilCliente.Apellidos" class="form-control" />
+                    <ValidationMessage For="@(() => perfilCliente.Apellidos)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono:</label>
+                    <InputText @bind-Value="perfilCliente.Telefono" class="form-control" />
+                    <ValidationMessage For="@(() => perfilCliente.Telefono)" class="text-danger small" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Contacto de Emergencia:</label>
+                    <InputText @bind-Value="perfilCliente.ContactoEmergencia" class="form-control" />
+                    <ValidationMessage For="@(() => perfilCliente.ContactoEmergencia)" class="text-danger small" />
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label class="form-label">Dirección:</label>
+                    <InputText @bind-Value="perfilCliente.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => perfilCliente.Direccion)" class="text-danger small" />
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+            </div>
+        </EditForm>
+    </div>
+    
+    @* Modal de Confirmación Nativo (Sin JS) *@
+    @if (mostrarModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">¿Eliminar cuenta?</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="OcultarModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas dar de baja tu cuenta? Esta acción no se puede deshacer y perderás el acceso al sistema.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="OcultarModal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmarEliminacion">Sí, eliminar definitivamente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    private PerfilModel perfilCliente = new();
+    private bool mostrarAlertaGuardado = false;
+    private bool mostrarModal = false;
+
+    // Ciclo de Vida: Simulamos la carga de datos al abrir la pantalla
+    protected override void OnInitialized()
+    {
+        perfilCliente = new PerfilModel
+        {
+            Dni = "72839401",
+            Email = "juan.perez@email.com",
+            Nombres = "Juan Carlos",
+            Apellidos = "Pérez Gómez",
+            Telefono = "987654321",
+            Direccion = "Av. Universitaria 1801, San Miguel",
+            ContactoEmergencia = "999888777"
+        };
+    }
+
+    private void GuardarCambios()
+    {
+        // El EditForm ya validó todo. Simulamos el éxito:
+        mostrarAlertaGuardado = true;
+    }
+
+    // Métodos para controlar el Modal
+    private void MostrarModalEliminar() => mostrarModal = true;
+    private void OcultarModal() => mostrarModal = false;
+
+    private void ConfirmarEliminacion()
+    {
+        // Simula la llamada DELETE y manda al Login
+        OcultarModal();
+        Nav.NavigateTo("/login");
+    }
+
+    // Modelo de datos de la página
+    public class PerfilModel
+    {
+        public string Dni { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Requerido")]
+        public string Nombres { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Requerido")]
+        public string Apellidos { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Requerido")]
+        [StringLength(9, MinimumLength = 9, ErrorMessage = "Debe tener 9 dígitos")]
+        public string Telefono { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Requerido")]
+        public string Direccion { get; set; } = string.Empty;
+
+        [StringLength(9, MinimumLength = 9, ErrorMessage = "Debe tener 9 dígitos")]
+        public string ContactoEmergencia { get; set; } = string.Empty;
+    }
+}

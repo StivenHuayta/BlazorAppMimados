@@ -1,0 +1,87 @@
+@page "/login"
+@page "/cliente/login"
+@using System.Text.RegularExpressions
+@layout Layout.BlankLayout
+@rendermode InteractiveServer 
+@inject NavigationManager Navigation
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card p-4 shadow border-0 bg-white" style="width: 400px; border-radius: 8px;">
+        
+        <h3 class="text-center mb-4 fw-bold text-success">
+            🐾 Mimados Vet
+        </h3>
+        
+        <!-- Alerta para mostrar mensajes de error -->
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger py-2 mb-3 text-center fw-bold small" role="alert">
+                @mensajeError
+            </div>
+        }
+
+        <div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Usuario</label>
+                <!-- Vinculamos el input a la variable 'correo' -->
+                <input type="email" class="form-control bg-white text-dark" placeholder="correo@ejemplo.com" @bind="correo" />
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Contraseña</label>
+                <!-- Vinculamos el input a la variable 'contrasena' -->
+                <input type="password" class="form-control bg-white text-dark" placeholder="Ingrese su contraseña" @bind="contrasena" />
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark">Ingresar como:</label>
+                <select class="form-select bg-white text-dark" @bind="rolSeleccionado">
+                    <option value="Cliente">Cliente</option>
+                    <option value="Administrador">Administrador</option>
+                </select>
+            </div>
+            
+            <button type="button" class="btn btn-success w-100 fw-bold" @onclick="IniciarSesion">
+                Ingresar
+            </button>
+        </div>
+        
+    </div>
+</div>
+
+@code {
+    private string correo = "";
+    private string contrasena = "";
+    private string rolSeleccionado = "Cliente";
+    private string mensajeError = "";
+
+    private void IniciarSesion()
+    {
+        mensajeError = ""; // Limpiar errores previos
+
+        // 1. Validar que los campos no estén vacíos
+        if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Por favor, complete todos los campos.";
+            return; // Detiene la ejecución
+        }
+
+        // 2. Validar formato de correo usando una expresión regular
+        bool correoValido = Regex.IsMatch(correo, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        if (!correoValido)
+        {
+            mensajeError = "Por favor, ingrese un formato de correo válido (ej: nombre@dominio.com).";
+            return; // Detiene la ejecución
+        }
+
+        // 3. Si pasa las validaciones, procede con la redirección
+        if (rolSeleccionado == "Administrador")
+        {
+            Navigation.NavigateTo("/admin/inicio");
+        }
+        else
+        {
+            Navigation.NavigateTo("/cliente/mascotas");
+        }
+    }
+}
