@@ -1,47 +1,60 @@
-﻿@page "/login"
+@page "/login"
 @rendermode InteractiveServer
 @layout Layout.BlankLayout 
 @using System.ComponentModel.DataAnnotations
 
 @inject NavigationManager Nav
 
-<div class="container mt-5" style="max-width: 400px;">
-    <div class="card p-4">
-        <h3 class="mb-3">Iniciar Sesión - Mimados</h3>
+<div class="container" style="max-width: 420px;">
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-sm-5 bg-white">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle mb-3" style="width: 64px; height: 64px; font-size: 2rem;">
+                🐾
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Mimados Vet</h3>
+            <p class="text-secondary small">Sistema de Gestión Clínica Veterinaria</p>
+        </div>
 
         <EditForm Model="@credenciales" OnValidSubmit="Ingresar">
             <DataAnnotationsValidator />
-            <ValidationSummary />
 
             <div class="mb-3">
-                <label>Correo electrónico:</label>
-                <InputText @bind-Value="credenciales.Email" class="form-control" placeholder="correo@ejemplo.com" />
-                <ValidationMessage For="@(() => credenciales.Email)" />
+                <label class="form-label fw-semibold small text-secondary">Correo electrónico</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                    <InputText @bind-Value="credenciales.Email" class="form-control border-start-0 ps-1" placeholder="correo@ejemplo.com" />
+                </div>
+                <ValidationMessage For="@(() => credenciales.Email)" class="text-danger small mt-1" />
             </div>
 
             <div class="mb-3">
-                <label>Contraseña:</label>
-                <InputText @bind-Value="credenciales.Password" type="password" class="form-control" />
-                <ValidationMessage For="@(() => credenciales.Password)" />
+                <label class="form-label fw-semibold small text-secondary">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                    <InputText @bind-Value="credenciales.Password" type="password" class="form-control border-start-0 ps-1" placeholder="••••••••" />
+                </div>
+                <ValidationMessage For="@(() => credenciales.Password)" class="text-danger small mt-1" />
             </div>
 
             @* Selector temporal solo para la maqueta gráfica: permite probar los 3 entornos *@
-            <div class="mb-3">
-                <label class="text-muted small">Simular ingreso como (Solo prueba UI):</label>
-                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select">
+            <div class="mb-4">
+                <label class="form-label fw-semibold small text-secondary">Simular ingreso como (UI demo):</label>
+                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select bg-light">
                     <option value="Cliente">Cliente</option>
                     <option value="Veterinario">Personal Veterinario</option>
                     <option value="Admin">Administrador</option>
                 </InputSelect>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold shadow-sm">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+            </button>
         </EditForm>
 
-        <hr />
-        <div class="text-center">
-            <span>¿No tienes cuenta? </span>
-            <a href="/registro">Regístrate aquí</a>
+        <hr class="my-4 opacity-25" />
+        <div class="text-center small">
+            <span class="text-muted">¿No tienes cuenta? </span>
+            <a href="/registro" class="fw-semibold text-success text-decoration-none">Regístrate aquí</a>
         </div>
     </div>
 </div>

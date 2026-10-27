@@ -1,42 +1,40 @@
-﻿@* Cabecera del menú con el nombre de tu proyecto *@
-<div class="top-row ps-3 navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand text-white" href="cliente/mascotas">🐾 Mimados</a>
-    </div>
-</div>
+﻿<nav class="mt-2">
+    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
 
-<div class="nav-scrollable">
-    <nav class="flex-column mt-3">
-        
-        @* Botón hacia tu RF-05 *@
-        <div class="nav-item px-3 mb-2">
-            <NavLink class="nav-link text-dark" href="cliente/mascotas" Match="NavLinkMatch.All">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Mis Mascotas
+        @* Botón hacia tu RF-05: Gestión de mascotas *@
+        <li class="nav-item">
+            <NavLink class="nav-link" href="cliente/mascotas" Match="NavLinkMatch.All">
+                <i class="nav-icon bi bi-heart-pulse"></i>
+                <p>Mis Mascotas</p>
             </NavLink>
-        </div>
+        </li>
 
-        @* Botón hacia tu RF-04 *@
-        <div class="nav-item px-3 mb-2">
-            <NavLink class="nav-link text-dark" href="cliente/perfil">
-                <span class="bi bi-person" aria-hidden="true"></span> Mi Perfil
+        @* Botón hacia tu RF-04: Datos del cliente *@
+        <li class="nav-item">
+            <NavLink class="nav-link" href="cliente/perfil">
+                <i class="nav-icon bi bi-person-circle"></i>
+                <p>Mi Perfil</p>
             </NavLink>
-        </div>
+        </li>
 
-        @* Espacio reservado para el Integrante 2 (RF-03) *@
-        <div class="nav-item px-3 mb-2">
-            <NavLink class="nav-link text-dark" href="cliente/citas/nueva">
-                <span class="bi bi-calendar-plus" aria-hidden="true"></span> Reservar Cita
+        @* Botón hacia el RF-03: Reservar Cita *@
+        <li class="nav-item">
+            <NavLink class="nav-link" href="cliente/citas/nueva">
+                <i class="nav-icon bi bi-calendar-plus"></i>
+                <p>Reservar Cita</p>
             </NavLink>
-        </div>
+        </li>
 
-        <hr />
+        <!-- Separador -->
+        <li class="nav-header text-uppercase text-secondary mt-2">Cuenta</li>
 
-        @* Botón para salir (por ahora solo manda al login) *@
-        <div class="nav-item px-3">
+        @* Botón para salir *@
+        <li class="nav-item">
             <NavLink class="nav-link text-danger" href="login">
-                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Salir
+                <i class="nav-icon bi bi-box-arrow-right"></i>
+                <p>Salir</p>
             </NavLink>
-        </div>
+        </li>
 
-    </nav>
-</div>
+    </ul>
+</nav>

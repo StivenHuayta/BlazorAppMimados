@@ -1,4 +1,4 @@
-﻿@page "/cliente/mascotas/nueva"
+@page "/cliente/mascotas/nueva"
 @rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @* Inyectamos el NavigationManager para poder regresar a la grilla[cite: 5] *@
@@ -116,6 +116,6 @@
         public DateTime FechaNacimiento { get; set; }
 
         [Range(0.1, 150.0, ErrorMessage = "Ingrese un peso válido en kg")]
-        public double PesoReferencial { get; set; }
+        public decimal PesoReferencial { get; set; }
     }
 }
