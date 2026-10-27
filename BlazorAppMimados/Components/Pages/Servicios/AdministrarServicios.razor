@@ -119,7 +119,7 @@
                             }
                     </td>
                     <td >
-                        <a href="/ruta-a-donde-quieres-ir/@ser.Id" class="btn btn-primary btn-sm">
+                        <a href="@($"/servicio/administrar/editar/{ser.Id}")" class="btn btn-warning btn-sm">
                             <i class="bi bi-eye"></i> Ver
                         </a>
                     </td>
@@ -140,13 +140,13 @@
     private int filtroDuracionMax;
 
     List<Servicio> listaServicios = new List<Servicio>
-{
+    {
     new Servicio(1, "Baño y Corte", "Baño completo con champú medicado, secado y corte de pelo.", 50.0, 60, true),
     new Servicio(2, "Consulta Veterinaria General", "Evaluación clínica integral del estado de salud de la mascota.", 70.0, 30, true),
     new Servicio(3, "Limpieza Dental", "Profilaxis dental ultrasónica para prevención de sarro y halitosis.", 120.0, 45, true)
-};
+    };
 
-private void AplicarFiltros(){
+    private void AplicarFiltros(){
         Console.WriteLine("aplicando filtros");
 
     }
