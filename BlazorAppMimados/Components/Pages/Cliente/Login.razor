@@ -6,7 +6,7 @@
 @inject NavigationManager Navigation
 
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card p-4 shadow border-0 bg-white" style="width: 400px; border-radius: 8px;">
+    <div class="card p-4 shadow border-0 bg-white" style="width: 420px; border-radius: 8px;">
         
         <h3 class="text-center mb-4 fw-bold text-success">
             🐾 Mimados Vet
@@ -22,32 +22,26 @@
 
         <div>
             <div class="mb-3">
-                <label class="form-label fw-bold text-dark">Usuario</label>
-                <!-- Vinculamos el input a la variable 'correo' -->
+                <label class="form-label fw-bold text-dark">Usuario / Correo</label>
                 <input type="email" class="form-control bg-white text-dark" placeholder="correo@ejemplo.com" @bind="correo" />
             </div>
             
             <div class="mb-3">
                 <label class="form-label fw-bold text-dark">Contraseña</label>
-                <!-- Vinculamos el input a la variable 'contrasena' -->
                 <input type="password" class="form-control bg-white text-dark" placeholder="Ingrese su contraseña" @bind="contrasena" />
             </div>
-
-            @* Tipo de usuario de acceso *@
-            <div class="mb-4">
-                <label class="form-label fw-semibold small text-secondary">Tipo de usuario:</label>
-                <InputSelect @bind-Value="credenciales.RolSimulado" class="form-select bg-light">
             
             <div class="mb-4">
                 <label class="form-label fw-bold text-dark">Ingresar como:</label>
                 <select class="form-select bg-white text-dark" @bind="rolSeleccionado">
                     <option value="Cliente">Cliente</option>
                     <option value="Administrador">Administrador</option>
+                    <option value="Veterinario">Personal Veterinario</option>
                 </select>
             </div>
             
-            <button type="button" class="btn btn-success w-100 fw-bold" @onclick="IniciarSesion">
-                Ingresar
+            <button type="button" class="btn btn-success w-100 fw-bold py-2" @onclick="IniciarSesion">
+                Ingresar al Sistema
             </button>
         </div>
         
@@ -62,39 +56,36 @@
 
     private void IniciarSesion()
     {
-        // Redirige a las páginas del tipo de usuario seleccionado.
-        if (credenciales.RolSimulado == "Cliente")
-        mensajeError = ""; // Limpiar errores previos
+        mensajeError = "";
 
         // 1. Validar que los campos no estén vacíos
         if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
         {
             mensajeError = "Por favor, complete todos los campos.";
-            return; // Detiene la ejecución
+            return;
         }
-        else if (credenciales.RolSimulado == "Veterinario")
-        {
-            // Acceso al módulo de citas del personal.
-            Nav.NavigateTo("/empleado/citas");
-        }
-        else
 
         // 2. Validar formato de correo usando una expresión regular
         bool correoValido = Regex.IsMatch(correo, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         if (!correoValido)
         {
             mensajeError = "Por favor, ingrese un formato de correo válido (ej: nombre@dominio.com).";
-            return; // Detiene la ejecución
+            return;
         }
 
-        // 3. Si pasa las validaciones, procede con la redirección
+        // 3. Redirección según rol seleccionado
         if (rolSeleccionado == "Administrador")
         {
             Navigation.NavigateTo("/admin/inicio");
+        }
+        else if (rolSeleccionado == "Veterinario")
+        {
+            Navigation.NavigateTo("/veterinario/citas");
         }
         else
         {
             Navigation.NavigateTo("/cliente/mascotas");
         }
     }
+}
 }
