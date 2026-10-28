@@ -1,0 +1,127 @@
+﻿@page "/cliente/mascotas/{Id:int}/historial"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+
+<div class="container mt-4" style="max-width: 900px;">
+    
+    @* Cabecera con título dinámico y botones de acción *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Historial Clínico: <span class="text-primary">@nombreMascota</span></h2>
+        <div>
+            <button class="btn btn-secondary me-2" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+            <button class="btn btn-dark" @onclick="ImprimirReporte">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar Reporte
+            </button>
+        </div>
+    </div>
+
+    @* Mensaje de éxito simulado al descargar *@
+    @if (mostrarAlertaDescarga)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            El reporte en PDF se ha generado y descargado exitosamente.
+            <button type="button" class="btn-close" @onclick="() => mostrarAlertaDescarga = false"></button>
+        </div>
+    }
+
+    @if (historial == null)
+    {
+        <div class="alert alert-info shadow-sm">Buscando el historial médico en la base de datos...</div>
+    }
+    else if (!historial.Any())
+    {
+        <div class="alert alert-warning shadow-sm">Aún no hay registros médicos para esta mascota.</div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Veterinario</th>
+                                <th>Servicio</th>
+                                <th>Diagnóstico / Notas</th>
+                                <th>Peso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var registro in historial)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@registro.Fecha.ToShortDateString()</td>
+                                    <td>@registro.Veterinario</td>
+                                    <td><span class="badge bg-info text-dark">@registro.Servicio</span></td>
+                                    <td>@registro.Notas</td>
+                                    <td>@registro.Peso kg</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string nombreMascota = "";
+    private bool mostrarAlertaDescarga = false;
+    private List<RegistroMedico> historial = new();
+
+    protected override void OnInitialized()
+    {
+        // Simulamos la consulta a la BD usando el Id
+        if (Id == 1)
+        {
+            nombreMascota = "Firulais";
+            historial = new List<RegistroMedico>
+            {
+                new RegistroMedico { Fecha = new DateTime(2025, 10, 15), Veterinario = "Dr. López", Servicio = "Consulta General", Notas = "Control sano, vacunas al día. Se recomienda más ejercicio.", Peso = 15.2m },
+                new RegistroMedico { Fecha = new DateTime(2026, 02, 10), Veterinario = "Dra. Torres", Servicio = "Desparasitación", Notas = "Se aplicó antiparasitario interno y externo (Bravecto).", Peso = 15.5m }
+            };
+        }
+        else if (Id == 2)
+        {
+            nombreMascota = "Michi";
+            historial = new List<RegistroMedico>
+            {
+                new RegistroMedico { Fecha = new DateTime(2025, 12, 05), Veterinario = "Dr. López", Servicio = "Vacunación", Notas = "Vacuna Triple Felina aplicada sin reacciones adversas.", Peso = 4.0m }
+            };
+        }
+        else
+        {
+            nombreMascota = "Mascota Desconocida";
+            historial = new List<RegistroMedico>(); // Lista vacía
+        }
+    }
+
+    private void Volver()
+    {
+        Nav.NavigateTo("/cliente/mascotas");
+    }
+
+    private void ImprimirReporte()
+    {
+        // Aquí se simula la generación del reporte exigido por el RF-14
+        mostrarAlertaDescarga = true;
+        Console.WriteLine($"Generando reporte PDF para la mascota ID: {Id}");
+    }
+
+    // Modelo de datos interno para pintar la tabla
+    public class RegistroMedico
+    {
+        public DateTime Fecha { get; set; }
+        public string Veterinario { get; set; } = string.Empty;
+        public string Servicio { get; set; } = string.Empty;
+        public string Notas { get; set; } = string.Empty;
+        public decimal Peso { get; set; }
+    }
+}
