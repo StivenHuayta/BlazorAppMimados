@@ -1,5 +1,5 @@
 ﻿@page "/sede/administrar"
-
+@inject NavigationManager Nav
 @using Mimados_WebApp.Models
 
 <div class="container mt-4 mb-5">
@@ -137,6 +137,12 @@
     }
     private void LimpiarFiltros(){
         Console.WriteLine("limpiando filtros");
+
+    }
+
+    public void IrAEditarMascota(int id)
+    {
+        Nav.NavigateTo($"/sede/administrar/editar/{id}");
 
     }
     

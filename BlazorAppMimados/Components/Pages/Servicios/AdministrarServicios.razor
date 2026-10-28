@@ -17,46 +17,46 @@
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-body">
             <div class="row mb-3">
-            <div class="col-12">
-                <h5 class="card-title fw-bold text-secondary mb-0">Filtros de Búsqueda</h5>
+                <div class="col-12">
+                    <h5 class="card-title fw-bold text-secondary mb-0">Filtros de Búsqueda</h5>
+                </div>
             </div>
-        </div>
-            <div class="row g-3">
-                <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Nombre del Servicio</label>
-                <input type="text" class="form-control form-control-sm" @bind="filtroNombre" placeholder="Buscar por nombre..." />
-            </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Nombre del Servicio</label>
+                    <input type="text" class="form-control form-control-sm" @bind="filtroNombre" placeholder="Buscar por nombre..." />
+                    </div>
 
             <!-- 2. Filtro por Rango de Precio -->
-            <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Rango de Precio (S/)</label>
-                <div class="input-group input-group-sm">
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Rango de Precio (S/)</label>
+                    <div class="input-group input-group-sm">
                     <input type="number" class="form-control" @bind="filtroPrecioMin" placeholder="Mín" step="0.01" />
                     <span class="input-group-text">-</span>
                     <input type="number" class="form-control" @bind="filtroPrecioMax" placeholder="Máx" step="0.01" />
+                    </div>
                 </div>
-            </div>
 
             <!-- 3. Filtro por Rango de Duración -->
-            <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Rango de Duración (min)</label>
-                <div class="input-group input-group-sm">
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Rango de Duración (min)</label>
+                    <div class="input-group input-group-sm">
                     <input type="number" class="form-control" @bind="filtroDuracionMin" placeholder="Mín" />
                     <span class="input-group-text">-</span>
                     <input type="number" class="form-control" @bind="filtroDuracionMax" placeholder="Máx" />
+                    </div>
                 </div>
-            </div>
 
-                <div class="col-md-12 d-flex align-items-end gap-2">
-                    <button class="btn btn-primary btn-sm px-4 shadow-sm" @onclick="AplicarFiltros">
-                        <i class="bi bi-search me-1"></i>Buscar
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm px-4" @onclick="LimpiarFiltros">
-                        <i class="bi bi-x-circle me-1"></i>Limpiar
-                    </button>
+                    <div class="col-md-12 d-flex align-items-end gap-2">
+                        <button class="btn btn-primary btn-sm px-4 shadow-sm" @onclick="AplicarFiltros">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm px-4" @onclick="LimpiarFiltros">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <!-- Tabla paginada de clientes. (tipo de dato a usar, ,onchanged) -->
@@ -140,13 +140,13 @@
     private int filtroDuracionMax;
 
     List<Servicio> listaServicios = new List<Servicio>
-{
+    {
     new Servicio(1, "Baño y Corte", "Baño completo con champú medicado, secado y corte de pelo.", 50.0, 60, true),
     new Servicio(2, "Consulta Veterinaria General", "Evaluación clínica integral del estado de salud de la mascota.", 70.0, 30, true),
     new Servicio(3, "Limpieza Dental", "Profilaxis dental ultrasónica para prevención de sarro y halitosis.", 120.0, 45, true)
-};
+    };
 
-private void AplicarFiltros(){
+    private void AplicarFiltros(){
         Console.WriteLine("aplicando filtros");
 
     }

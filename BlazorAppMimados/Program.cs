@@ -1,10 +1,12 @@
 using Mimados_WebApp.Components;
+using Mimados_WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<VeterinariaMockDataService>();
 
 var app = builder.Build();
 
@@ -25,3 +27,4 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+

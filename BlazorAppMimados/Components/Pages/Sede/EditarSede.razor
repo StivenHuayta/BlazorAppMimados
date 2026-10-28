@@ -71,9 +71,9 @@
     <h3 class="fw-bold text-secondary m-0">
         <i class="fas fa-bone text-warning me-2"></i> Listado de Servicios
     </h3>
-                <button type="button" class="btn btn-success" @onclick="AbrirBuscarServicio">
-                    <i class="bi bi-plus-circle me-1"></i> Nuevo Servicio
-                </button>
+    <a href="/servicio/nuevo" class="btn btn-success">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Servicio
+    </a>
 </div>
     <Card Title="Lista de Servicios"
           FooterClass="text-secondary small"
@@ -153,10 +153,8 @@
     [Parameter]
     public int Id { get; set; }
 
-    private List<Servicio> listaServicios = new List<Servicio>();
-    private string textoBusquedaEmpleado = "";
-    private List<Servicio> empleadosFiltrados = new List<Servicio>();
-    private bool mostrarModalServicio = true;
+    List<Servicio> listaServicios = new List<Servicio>();
+    
 
 
     private SedeEditar editarSede = new SedeEditar ();
@@ -233,17 +231,6 @@
     public string Telefono { get; set; } = string.Empty;
 
     public bool Activo { get; set; } = true;
-    }
-
-
-    
-    private void AbrirBuscarServicio()
-    {
-        Console.WriteLine("ejecutar abrir servicio");
-
-        textoBusquedaEmpleado = "";
-        empleadosFiltrados = new List<Servicio>();
-        mostrarModalServicio = true;
     }
 
 }
