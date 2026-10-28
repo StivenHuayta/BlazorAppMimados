@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Mimados_WebApp.Components;
 using Mimados_WebApp.Services;
 
@@ -6,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Autenticación y Autorización
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());
+
 builder.Services.AddSingleton<VeterinariaMockDataService>();
 
 var app = builder.Build();

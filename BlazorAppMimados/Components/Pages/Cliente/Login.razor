@@ -4,6 +4,7 @@
 @layout Layout.BlankLayout
 @rendermode InteractiveServer 
 @inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider AuthStateProvider
 
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
     <div class="card p-4 shadow border-0 bg-white" style="width: 420px; border-radius: 8px;">
@@ -23,7 +24,7 @@
         <div>
             <div class="mb-3">
                 <label class="form-label fw-bold text-dark">Usuario / Correo</label>
-                <input type="email" class="form-control bg-white text-dark" placeholder="correo@ejemplo.com" @bind="correo" />
+                <input type="text" class="form-control bg-white text-dark" placeholder="atorres@mimados.com" @bind="correo" />
             </div>
             
             <div class="mb-3">
@@ -44,15 +45,25 @@
                 Ingresar al Sistema
             </button>
         </div>
+
+        <div class="mt-3 text-center small text-muted">
+            Admin demo: <code>atorres@mimados.com</code> o <code>admin</code> (clave: cualquiera)
+        </div>
         
     </div>
 </div>
 
 @code {
-    private string correo = "";
-    private string contrasena = "";
-    private string rolSeleccionado = "Cliente";
+    private string correo = "atorres@mimados.com";
+    private string contrasena = "123456";
+    private string rolSeleccionado = "Administrador";
     private string mensajeError = "";
+
+    protected override void OnInitialized()
+    {
+        // Al entrar a login, cerramos cualquier sesión previa
+        AuthStateProvider.Logout();
+    }
 
     private void IniciarSesion()
     {
@@ -65,25 +76,30 @@
             return;
         }
 
-        // 2. Validar formato de correo usando una expresión regular
-        bool correoValido = Regex.IsMatch(correo, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        // 2. Validar formato de correo o usuario simple "admin"
+        string correoLimpio = correo.Trim();
+        bool esUsuarioSimple = correoLimpio.Equals("admin", StringComparison.OrdinalIgnoreCase);
+        bool correoValido = esUsuarioSimple || Regex.IsMatch(correoLimpio, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         if (!correoValido)
         {
-            mensajeError = "Por favor, ingrese un formato de correo válido (ej: nombre@dominio.com).";
+            mensajeError = "Por favor, ingrese un formato de correo válido (ej: nombre@dominio.com) o 'admin'.";
             return;
         }
 
-        // 3. Redirección según rol seleccionado
+        // 3. Autenticación y redirección según rol seleccionado
         if (rolSeleccionado == "Administrador")
         {
+            AuthStateProvider.Login(correoLimpio, "Admin");
             Navigation.NavigateTo("/admin/inicio");
         }
         else if (rolSeleccionado == "Veterinario")
         {
+            AuthStateProvider.Login(correoLimpio, "Veterinario");
             Navigation.NavigateTo("/veterinario/citas");
         }
         else
         {
+            AuthStateProvider.Login(correoLimpio, "Cliente");
             Navigation.NavigateTo("/cliente/mascotas");
         }
     }
