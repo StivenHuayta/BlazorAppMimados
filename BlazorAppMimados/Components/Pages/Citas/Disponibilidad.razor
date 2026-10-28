@@ -1,0 +1,143 @@
+@page "/cliente/citas/disponibilidad"
+@rendermode InteractiveServer
+
+<PageTitle>Disponibilidad de Veterinarios - Mimados</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1">Disponibilidad de Veterinarios</h2>
+            <p class="text-muted mb-0">Consulta las opciones de atención según sede, especialidad, fecha y horario.</p>
+        </div>
+        <a class="btn btn-secondary" href="/cliente/citas">
+            <i class="bi bi-calendar-check me-1"></i> Ir a Mis Citas
+        </a>
+    </div>
+
+    <div class="card p-4 shadow-sm border-0 bg-light mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel text-success me-2"></i>Buscar disponibilidad</h5>
+        <div class="row">
+            <div class="col-md-6 col-lg-3 mb-3">
+                <label for="disp-sede" class="form-label fw-bold">Sede:</label>
+                <select id="disp-sede" class="form-select" @bind="sedeFiltro">
+                    <option value="">Seleccionar sede</option>
+                    <option value="San Miguel">San Miguel</option>
+                    <option value="Surco">Surco</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <label for="disp-especialidad" class="form-label fw-bold">Especialidad:</label>
+                <select id="disp-especialidad" class="form-select" @bind="especialidadFiltro">
+                    <option value="">Seleccionar especialidad</option>
+                    <option value="Medicina general">Medicina general</option>
+                    <option value="Medicina preventiva">Medicina preventiva</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <label for="disp-fecha" class="form-label fw-bold">Fecha:</label>
+                <input id="disp-fecha" class="form-control" type="date" @bind="fechaFiltro" />
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <label for="disp-hora" class="form-label fw-bold">Horario:</label>
+                <select id="disp-hora" class="form-select" @bind="horarioFiltro">
+                    <option value="">Cualquier horario</option>
+                    <option value="09:00">09:00 a. m.</option>
+                    <option value="10:00">10:00 a. m.</option>
+                    <option value="11:30">11:30 a. m.</option>
+                    <option value="15:30">03:30 p. m.</option>
+                </select>
+            </div>
+        </div>
+        <div class="text-end">
+            <button type="button" class="btn btn-success px-4" @onclick="BuscarDisponibilidad">
+                <i class="bi bi-search me-1"></i> Consultar Disponibilidad
+            </button>
+        </div>
+    </div>
+
+    @if (mostrarResultados)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Veterinarios disponibles</h5>
+            <span class="badge bg-success">@($"{resultados.Count} {(resultados.Count == 1 ? "veterinario" : "veterinarios")}")</span>
+        </div>
+
+        @if (resultados.Count == 0)
+        {
+            <div class="alert alert-info" role="status">No se encontraron veterinarios con los filtros seleccionados.</div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var veterinario in resultados)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 bg-light">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0 fw-bold"><i class="bi bi-person-badge me-2"></i>@veterinario.Nombre</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2"><strong>Especialidad:</strong> @veterinario.Especialidad</p>
+                                <p class="mb-2"><strong>Sede:</strong> @veterinario.Sede</p>
+                                <p class="mb-3"><strong>Fecha:</strong> @veterinario.Fecha.ToString("dd/MM/yyyy")</p>
+                                <p class="mb-2 fw-bold">Horarios disponibles:</p>
+                                @foreach (var horario in HorariosVisibles(veterinario))
+                                {
+                                    <span class="badge bg-success me-1 mb-2">@horario.Etiqueta</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private readonly List<VeterinarioDisponible> veterinarios = new()
+    {
+        new("Dra. Ana Torres", "Medicina general", "San Miguel", new DateTime(2026, 11, 4), new()
+        {
+            new("09:00", "09:00 a. m."),
+            new("10:00", "10:00 a. m.")
+        }),
+        new("Dr. Luis Ramírez", "Medicina preventiva", "Surco", new DateTime(2026, 11, 7), new()
+        {
+            new("11:30", "11:30 a. m."),
+            new("15:30", "03:30 p. m.")
+        })
+    };
+
+    private string sedeFiltro = "";
+    private string especialidadFiltro = "";
+    private DateTime? fechaFiltro;
+    private string horarioFiltro = "";
+    private bool mostrarResultados;
+    private List<VeterinarioDisponible> resultados = new();
+
+    private void BuscarDisponibilidad()
+    {
+        resultados = veterinarios.Where(v =>
+            (string.IsNullOrEmpty(sedeFiltro) || v.Sede == sedeFiltro) &&
+            (string.IsNullOrEmpty(especialidadFiltro) || v.Especialidad == especialidadFiltro) &&
+            (!fechaFiltro.HasValue || v.Fecha.Date == fechaFiltro.Value.Date) &&
+            (string.IsNullOrEmpty(horarioFiltro) || v.Horarios.Any(h => h.Valor == horarioFiltro))
+        ).ToList();
+        mostrarResultados = true;
+    }
+
+    private IEnumerable<HorarioDisponible> HorariosVisibles(VeterinarioDisponible veterinario) =>
+        string.IsNullOrEmpty(horarioFiltro)
+            ? veterinario.Horarios
+            : veterinario.Horarios.Where(h => h.Valor == horarioFiltro);
+
+    private sealed record HorarioDisponible(string Valor, string Etiqueta);
+
+    private sealed record VeterinarioDisponible(
+        string Nombre,
+        string Especialidad,
+        string Sede,
+        DateTime Fecha,
+        List<HorarioDisponible> Horarios);
+}

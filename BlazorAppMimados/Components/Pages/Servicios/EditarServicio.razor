@@ -1,0 +1,164 @@
+﻿@page "/servicio/administrar/editar/{Id:int}"
+
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager Nav
+
+<div class="container-fluid mt-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Editar Servicio</h2>
+        <button class="btn btn-secondary" @onclick="Volver">
+            <i class="bi bi-arrow-left"></i> Volver a Administrar Servicios
+        </button>
+    </div>
+
+    @if (nuevoServicio == null)
+    {
+        <div class="alert alert-info">Cargando datos de la mascota...</div>
+    }
+    else
+    {
+        <div class="card p-4 shadow-sm border-0 bg-light">
+            
+            @* Reutilizamos el EditForm con validación nativa (Diapositiva 39) *@
+            <EditForm Model="@nuevoServicio" OnValidSubmit="ActualizarMascota">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                <label class="form-label fw-bold">Nombre del servicio:</label>
+                <InputText @bind-Value="nuevoServicio.Nombre" class="form-control" placeholder="Ej. Servicio ..." />
+                <ValidationMessage For="@(() => nuevoServicio.Nombre)" class="text-danger small" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Descripcion:</label>
+                    <InputText @bind-Value="nuevoServicio.Descripcion" class="form-control" placeholder="Ej. Deteccion ..." />
+                    <ValidationMessage For="@(() => nuevoServicio.Descripcion)" class="text-danger small" />
+            </div>
+
+
+
+                
+
+                <div class="row">
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Precio referencial:</label>
+                    <InputNumber @bind-Value="nuevoServicio.PrecioReferencial" class="form-control" step="0.01"  />
+                    <ValidationMessage For="@(() => nuevoServicio.PrecioReferencial)" class="text-danger small" />
+
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Duracion en minutos:</label>
+                    <InputNumber @bind-Value="nuevoServicio.DuracionMinutos" class="form-control" step="1"  />
+                    <ValidationMessage For="@(() => nuevoServicio.DuracionMinutos)" class="text-danger small" />
+                </div>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+
+                <InputCheckbox id="estadoActivo" @bind-Value="nuevoServicio.Activo" class="form-check-input switch-activo-rojo" role="switch" />
+                <label class="form-check-label" for="estadoActivo">
+                    @(nuevoServicio.Activo ? "Activo" : "Inactivo")
+                   </label>
+            </div>
+
+
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-warning px-4 fw-bold text-dark">
+                        <i class="bi bi-pencil-square"></i> Actualizar Datos
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private ServicioEditar nuevoServicio = new ServicioEditar ();
+
+
+    protected override void OnInitialized()
+    {
+        // Simulamos buscar la mascota en la Base de Datos usando el Id que llegó en la URL
+        Console.WriteLine($"Buscando en BD la mascota con ID: {Id}");
+
+        // Simulación de carga de datos para rellenar el formulario
+        if (Id == 1)
+        {
+             nuevoServicio = new ServicioEditar
+                                                                {
+                                            Nombre = "Baño y Corte",
+                                                Descripcion = "Baño completo con champú medicado, secado y corte de pelo.",
+                                            PrecioReferencial = 50.0m, // La 'm' al final indica que es un decimal en C#
+                                            DuracionMinutos = 60,
+                                            Activo = true
+                                            };
+        }
+        else if (Id == 2)
+        {
+             nuevoServicio = new ServicioEditar
+                                                            {
+                                            Nombre = "Consulta Veterinaria General",
+                                            Descripcion = "Evaluación clínica integral del estado de salud de la mascota.",
+                                            PrecioReferencial = 70.0m,
+                                            DuracionMinutos = 30,
+                                            Activo = true
+                                            };
+        }
+        else if (Id == 3)
+        {
+             nuevoServicio = new ServicioEditar
+                                            {
+                                                Nombre = "Consulta Veterinaria General",
+                                                Descripcion = "Evaluación clínica integral del estado de salud de la mascota.",
+                                                PrecioReferencial = 70.0m,
+                                                DuracionMinutos = 30,
+                                                Activo = true
+                                            };
+        }
+        else
+        {
+            // Si inventan un ID que no existe, cargamos un modelo vacío o podemos redirigir a un error
+            nuevoServicio = new ServicioEditar ();
+        }
+    }
+
+    private void Volver()
+    {
+        Nav.NavigateTo("/servicio/administrar");
+
+    }
+    private void ActualizarMascota()
+    {
+        // Aquí usarías HttpClient (PUT) para actualizar en BD
+        Console.WriteLine($"Actualizando datos del servicio ID {Id}: {nuevoServicio?.Nombre}");
+        
+        // Regresamos a la grilla principal
+        Nav.NavigateTo("/servicio/administrar");
+    }
+
+    public class ServicioEditar
+{
+    [Required(ErrorMessage = "El nombre del servicio es obligatorio")]
+    public string Nombre { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "La descripción es obligatoria")]
+    public string Descripcion { get; set; } = string.Empty;
+
+    [Range(0.00, 9999.99, ErrorMessage = "Ingrese un precio referencial válido")]
+    public decimal PrecioReferencial { get; set; }
+
+    [Range(1, 1440, ErrorMessage = "Ingrese una duración válida en minutos")]
+    public int DuracionMinutos { get; set; }
+
+    public bool Activo { get; set; } = true;
+
+}
+}
