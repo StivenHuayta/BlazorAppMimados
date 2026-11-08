@@ -11,4 +11,9 @@
     <PackageReference Include="ColorlibHQ.AdminLTE.AspNetCore" Version="0.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Interfaces\" />
+    <Folder Include="Services\Implementaciones\" />
+  </ItemGroup>
+
 </Project>

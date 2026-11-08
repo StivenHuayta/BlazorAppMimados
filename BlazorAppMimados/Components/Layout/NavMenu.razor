@@ -5,59 +5,55 @@
     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
         @if (EsAdmin)
         {
-            <AuthorizeView Roles="Admin, Administrador">
-                <Authorized>
-                    <li class="nav-header text-uppercase text-secondary mt-2">ADMINISTRACIÓN</li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="admin/inicio">
-                            <i class="nav-icon bi bi-house-door-fill"></i>
-                            <p>Inicio</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="empleados">
-                            <i class="nav-icon bi bi-people-fill"></i>
-                            <p>Empleados</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="sede/administrar">
-                            <i class="nav-icon bi bi-building"></i>
-                            <p>Sedes</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="servicio/administrar">
-                            <i class="nav-icon bi bi-briefcase"></i>
-                            <p>Servicios</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="horarios">
-                            <i class="nav-icon bi bi-clock-fill"></i>
-                            <p>Horarios</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="reportes/citas">
-                            <i class="nav-icon bi bi-file-earmark-bar-graph-fill"></i>
-                            <p>Reporte Citas</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="reporte/servicios">
-                            <i class="nav-icon bi bi-graph-up"></i>
-                            <p>Reporte Servicios</p>
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="admin/perfil">
-                            <i class="nav-icon bi bi-person-fill"></i>
-                            <p>Mi Perfil</p>
-                        </NavLink>
-                    </li>
-                </Authorized>
-            </AuthorizeView>
+            <li class="nav-header text-uppercase text-secondary mt-2">ADMINISTRACIÓN</li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="admin/inicio">
+                    <i class="nav-icon bi bi-house-door-fill"></i>
+                    <p>Inicio</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="empleados">
+                    <i class="nav-icon bi bi-people-fill"></i>
+                    <p>Empleados</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="sede/administrar">
+                    <i class="nav-icon bi bi-building"></i>
+                    <p>Sedes</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="servicio/administrar">
+                    <i class="nav-icon bi bi-briefcase"></i>
+                    <p>Servicios</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="horarios">
+                    <i class="nav-icon bi bi-clock-fill"></i>
+                    <p>Horarios</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="reportes/citas">
+                    <i class="nav-icon bi bi-file-earmark-bar-graph-fill"></i>
+                    <p>Reporte Citas</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="reporte/servicios">
+                    <i class="nav-icon bi bi-graph-up"></i>
+                    <p>Reporte Servicios</p>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="admin/perfil">
+                    <i class="nav-icon bi bi-person-fill"></i>
+                    <p>Mi Perfil</p>
+                </NavLink>
+            </li>
         }
         else if (EsPersonalVeterinario)
         {
@@ -71,7 +67,7 @@
             <li class="nav-item">
                 <NavLink class="nav-link" href="veterinario/historial">
                     <i class="nav-icon bi bi-journal-medical"></i>
-                    <p>Historial del Paciente</p>
+                    <p>Historial Paciente</p>
                 </NavLink>
             </li>
             <li class="nav-item">
@@ -124,16 +120,23 @@
 
         <li class="nav-header text-uppercase text-secondary mt-2">SESIÓN</li>
         <li class="nav-item">
-            <NavLink class="nav-link text-danger" href="login">
+            <a class="nav-link text-danger" href="/auth/logout">
                 <i class="nav-icon bi bi-box-arrow-right"></i>
-                <p>Salir</p>
-            </NavLink>
+                <p>Cerrar Sesión</p>
+            </a>
         </li>
     </ul>
 </nav>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private System.Security.Claims.ClaimsPrincipal? _currentUser;
+
     private bool EsAdmin =>
+        (_currentUser?.Identity?.IsAuthenticated == true &&
+         (_currentUser.IsInRole("Admin") || _currentUser.IsInRole("Administrador"))) ||
         Navegacion.Uri.Contains("/admin", StringComparison.OrdinalIgnoreCase) ||
         Navegacion.Uri.Contains("/empleados", StringComparison.OrdinalIgnoreCase) ||
         Navegacion.Uri.Contains("/horarios", StringComparison.OrdinalIgnoreCase) ||
@@ -143,13 +146,30 @@
 
     private bool EsPersonalVeterinario =>
         !EsAdmin && (
+            (_currentUser?.Identity?.IsAuthenticated == true &&
+             (_currentUser.IsInRole("Veterinario") || _currentUser.IsInRole("Empleado"))) ||
             Navegacion.Uri.Contains("/empleado/", StringComparison.OrdinalIgnoreCase) ||
             Navegacion.Uri.Contains("/veterinario", StringComparison.OrdinalIgnoreCase)
         );
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Navegacion.LocationChanged += ActualizarMenu;
+        await CargarUsuarioAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarUsuarioAsync();
+    }
+
+    private async Task CargarUsuarioAsync()
+    {
+        if (AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            _currentUser = authState.User;
+        }
     }
 
     private void ActualizarMenu(object? sender, LocationChangedEventArgs e)
@@ -162,4 +182,3 @@
         Navegacion.LocationChanged -= ActualizarMenu;
     }
 }
-

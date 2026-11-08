@@ -1,0 +1,9 @@
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redirección con forceLoad=true para que el middleware de autenticación por Cookie tome el control
+        NavigationManager.NavigateTo("/login", forceLoad: true);
+    }
+}
