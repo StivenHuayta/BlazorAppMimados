@@ -6,7 +6,7 @@ using Mimados_WebApp.Models;
 namespace Mimados_WebApp.Services;
 
 /// <summary>
-/// Servicio de autenticación que consume directamente el servicio REST del backend Java (mimados-rs).
+/// Servicio de autenticación y registro que consume directamente el servicio REST del backend Java (mimados-rs).
 /// Implementado según el documento de referencia "Creación de Servicios Web RESTFul con Jakarta REST" (Sección 9),
 /// definiendo la URL base directamente mediante una constante sin requerir appsettings.json.
 /// </summary>
@@ -42,7 +42,6 @@ public class AuthValidationService : IAuthValidationService
         var input = usuarioOCorreo.Trim();
         var loginReq = new LoginRequest(input, contrasena);
 
-        // Rutas del servicio REST de Java a invocar (primaria y alternativa si el context path en GlassFish varía)
         var endpoints = new[]
         {
             $"{BASE_URL}/autenticar",
@@ -66,7 +65,6 @@ public class AuthValidationService : IAuthValidationService
 
                 var res = await _httpClient.PostAsync(url, jsonContent, cts.Token);
 
-                // Si no es 404 (Not Found), el recurso existe en esa URL
                 if (res.StatusCode != System.Net.HttpStatusCode.NotFound)
                 {
                     response = res;
@@ -95,7 +93,6 @@ public class AuthValidationService : IAuthValidationService
         {
             var contentString = await response.Content.ReadAsStringAsync();
 
-            // Si el servidor devolvió HTML (por ejemplo página de error 500 de GlassFish o Tomcat)
             if (string.IsNullOrWhiteSpace(contentString) || contentString.TrimStart().StartsWith("<"))
             {
                 _logger.LogError("El backend Java REST devolvió HTML en lugar de JSON (Código {StatusCode}): {Body}",
@@ -141,7 +138,6 @@ public class AuthValidationService : IAuthValidationService
                 };
             }
 
-            // Si el backend Java devolvió mensaje de error de negocio (401, 400, o success = false)
             var mensaje = apiResult?.Message;
             if (string.IsNullOrWhiteSpace(mensaje))
             {
@@ -176,6 +172,79 @@ public class AuthValidationService : IAuthValidationService
                 Exito = false,
                 MensajeError = "Error al procesar la respuesta del servicio de autenticación."
             };
+        }
+    }
+
+    public async Task<(bool Exito, string? Mensaje)> RegistrarClienteAsync(RegistroClienteRequest model)
+    {
+        if (model == null)
+        {
+            return (false, "Datos de registro inválidos.");
+        }
+
+        var endpoints = new[]
+        {
+            $"{BASE_URL}/registrarCliente",
+            $"{FALLBACK_URL}/registrarCliente"
+        };
+
+        HttpResponseMessage? response = null;
+        string? lastError = null;
+
+        foreach (var url in endpoints)
+        {
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(7));
+
+                var jsonContent = new StringContent(
+                    JsonSerializer.Serialize(model),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var res = await _httpClient.PostAsync(url, jsonContent, cts.Token);
+
+                if (res.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
+                    response = res;
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                lastError = ex.Message;
+                _logger.LogDebug(ex, "Intento de registro en {Url} no exitoso", url);
+            }
+        }
+
+        if (response == null)
+        {
+            return (false, $"No se pudo contactar al servidor REST de Java. {lastError ?? ""}".Trim());
+        }
+
+        try
+        {
+            var contentString = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(contentString) || contentString.TrimStart().StartsWith("<"))
+            {
+                return (false, $"El servidor devolvió un error (HTTP {(int)response.StatusCode}). Verifique que la base de datos esté accesible.");
+            }
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var apiResult = JsonSerializer.Deserialize<UsuarioApiResponse>(contentString, options);
+
+            if (response.IsSuccessStatusCode && apiResult != null && apiResult.Success)
+            {
+                return (true, apiResult.Message ?? "Cliente registrado con éxito.");
+            }
+
+            return (false, apiResult?.Message ?? "No se pudo registrar al cliente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al procesar registro de cliente");
+            return (false, "Error al procesar la respuesta del servidor.");
         }
     }
 }

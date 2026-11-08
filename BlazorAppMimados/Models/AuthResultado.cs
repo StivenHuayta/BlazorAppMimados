@@ -76,6 +76,36 @@ public class LoginRequest
 }
 
 /// <summary>
+/// DTO para la petición de creación de nueva cuenta de cliente.
+/// </summary>
+public class RegistroClienteRequest
+{
+    [JsonPropertyName("dni")]
+    public string Dni { get; set; } = string.Empty;
+
+    [JsonPropertyName("nombres")]
+    public string Nombres { get; set; } = string.Empty;
+
+    [JsonPropertyName("apellidos")]
+    public string Apellidos { get; set; } = string.Empty;
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = string.Empty;
+
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = string.Empty;
+
+    [JsonPropertyName("telefono")]
+    public string Telefono { get; set; } = string.Empty;
+
+    [JsonPropertyName("direccion")]
+    public string Direccion { get; set; } = string.Empty;
+
+    [JsonPropertyName("contactoEmergencia")]
+    public string? ContactoEmergencia { get; set; }
+}
+
+/// <summary>
 /// Contenedor de la respuesta estándar del servicio REST UsuarioRS.
 /// </summary>
 public class UsuarioApiResponse
