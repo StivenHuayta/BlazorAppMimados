@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Components.Authorization;
+using Mimados_WebApp.Services.MascotaServices;
 using Mimados_WebApp.Components;
+using Mimados_WebApp.Security;
 using Mimados_WebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,13 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Autenticación y Autorización
-builder.Services.AddAuthorizationCore();
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<CustomAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());
+// Autenticación por Cookies (similar al ejemplo de referencia en SoftProg-WebApp)
+builder.Services.AddCookieAuth();
+builder.Services.AddHttpClient<IAuthValidationService, AuthValidationService>();
 
+// Servicios de la aplicación
 builder.Services.AddSingleton<VeterinariaMockDataService>();
+
+//PARA SERVICIO DE MASCOTA
+builder.Services.AddScoped<HttpClient>();
+builder.Services.AddScoped<IMascotaService, MascotaService>();
+
 
 var app = builder.Build();
 
@@ -22,17 +27,22 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
-app.UseAntiforgery();
+// Middlewares de Autenticación y Autorización
+app.UseAuthentication();
+app.UseAuthorization();
 
+// Endpoints de autenticación (/auth/login y /auth/logout)
+app.MapAuthEndpoints();
+
+app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
-
