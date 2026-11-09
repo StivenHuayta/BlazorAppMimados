@@ -1,3 +1,4 @@
+using Mimados_WebApp.Services.MascotaServices;
 using BlazorAppMimados.Services;
 using Mimados_WebApp.Components;
 using Mimados_WebApp.Security;
@@ -28,6 +29,11 @@ builder.Services.AddHttpClient<IHorarioLaboralService, HorarioLaboralService>(cl
 
 // Servicios de la aplicación
 builder.Services.AddSingleton<VeterinariaMockDataService>();
+
+//PARA SERVICIO DE MASCOTA
+builder.Services.AddScoped<HttpClient>();
+builder.Services.AddScoped<IMascotaService, MascotaService>();
+
 
 var app = builder.Build();
 

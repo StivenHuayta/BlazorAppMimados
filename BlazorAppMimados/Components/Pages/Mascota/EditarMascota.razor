@@ -4,6 +4,16 @@
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Nav
 
+@using Mimados_WebApp.Models
+@using Mimados_WebApp.Services.MascotaServices
+@inject IMascotaService MascotaService
+
+
+
+
+
+
+
 <div class="container mt-4" style="max-width: 600px;">
     
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -13,11 +23,18 @@
         </button>
     </div>
 
-    @if (mascotaAEditar == null)
+
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger">@mensajeError</div>
+    }
+
+
+    @if (mascotaAEditar == null && string.IsNullOrEmpty(mensajeError))
     {
         <div class="alert alert-info">Cargando datos de la mascota...</div>
     }
-    else
+    else if (mascotaAEditar != null)
     {
         <div class="card p-4 shadow-sm border-0 bg-light">
             
@@ -35,12 +52,11 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Especie:</label>
                         <InputSelect @bind-Value="mascotaAEditar.Especie" class="form-select">
-                            <option value="">-- Seleccione --</option>
-                            <option value="Perro">Perro</option>
-                            <option value="Gato">Gato</option>
-                            <option value="Conejo">Conejo</option>
-                            <option value="Ave">Ave</option>
-                            <option value="Otro">Otro</option>
+                            <option value="CANINO">Perro</option>
+                            <option value="FELINO">Gato</option>
+                            <option value="CONEJO">Conejo</option>
+                            <option value="AVE">Ave</option>
+                            <option value="OTRO">Otro</option>
                         </InputSelect>
                         <ValidationMessage For="@(() => mascotaAEditar.Especie)" class="text-danger small" />
                     </div>
@@ -56,8 +72,8 @@
                         <label class="form-label fw-bold">Sexo:</label>
                         <InputSelect @bind-Value="mascotaAEditar.Sexo" class="form-select">
                             <option value="">-- Seleccione --</option>
-                            <option value="Macho">Macho</option>
-                            <option value="Hembra">Hembra</option>
+                           <option value="MACHO">Macho</option>
+                            <option value="HEMBRA">Hembra</option>
                         </InputSelect>
                         <ValidationMessage For="@(() => mascotaAEditar.Sexo)" class="text-danger small" />
                     </div>
@@ -92,35 +108,67 @@
 
     private MascotaEditarModel? mascotaAEditar;
 
+    private string? mensajeError;
+    private int clienteIdOriginal;
     // Se ejecuta al inicializar el componente (Diapositiva 35)
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Simulamos buscar la mascota en la Base de Datos usando el Id que llegó en la URL
-        Console.WriteLine($"Buscando en BD la mascota con ID: {Id}");
-        
-        // Simulación de carga de datos para rellenar el formulario
-        if (Id == 1)
+        // Traemos los datos reales de tu base de datos a través de GlassFish
+        var mascotaOriginal = await MascotaService.ObtenerMascotaPorIdAsync(Id);
+
+        if (mascotaOriginal != null)
         {
-            mascotaAEditar = new MascotaEditarModel { Id = 1, Nombre = "Firulais", Especie = "Perro", Raza = "Mestizo", Sexo = "Macho", FechaNacimiento = new DateTime(2020, 5, 10), PesoReferencial = 15.5m };
-        }
-        else if (Id == 2)
-        {
-            mascotaAEditar = new MascotaEditarModel { Id = 2, Nombre = "Michi", Especie = "Gato", Raza = "Siamés", Sexo = "Hembra", FechaNacimiento = new DateTime(2022, 8, 20), PesoReferencial = 4.2m };
+            // Guardamos el clienteId original para no perder al dueño al momento de actualizar
+            clienteIdOriginal = mascotaOriginal.ClienteId;
+
+            // Rellenamos el modelo del formulario
+            mascotaAEditar = new MascotaEditarModel
+            {
+                Id = mascotaOriginal.MascotaId,
+                Nombre = mascotaOriginal.Nombre,
+                Especie = mascotaOriginal.Especie,
+                Raza = mascotaOriginal.Raza,
+                Sexo = mascotaOriginal.Sexo,
+                FechaNacimiento = mascotaOriginal.FechaNacimiento ?? DateTime.Today,
+                PesoReferencial = mascotaOriginal.PesoReferencial ?? 0m
+            };
         }
         else
         {
-            // Si inventan un ID que no existe, cargamos un modelo vacío o podemos redirigir a un error
-            mascotaAEditar = new MascotaEditarModel { FechaNacimiento = DateTime.Today };
+            mensajeError = "No se pudo encontrar la mascota solicitada en la base de datos.";
         }
     }
 
-    private void ActualizarMascota()
+    private async Task ActualizarMascota()
     {
-        // Aquí usarías HttpClient (PUT) para actualizar en BD
-        Console.WriteLine($"Actualizando datos de la mascota ID {Id}: {mascotaAEditar?.Nombre}");
-        
-        // Regresamos a la grilla principal
-        Nav.NavigateTo("/cliente/mascotas");
+        if (mascotaAEditar == null) return;
+        mensajeError = null;
+
+        // Reconstruimos la mascota para enviarla al backend
+        var mascotaActualizada = new Mascota
+        {
+            MascotaId = mascotaAEditar.Id,
+            Nombre = mascotaAEditar.Nombre,
+            Especie = mascotaAEditar.Especie,
+            Raza = mascotaAEditar.Raza,
+            Sexo = mascotaAEditar.Sexo,
+            FechaNacimiento = mascotaAEditar.FechaNacimiento,
+            PesoReferencial = mascotaAEditar.PesoReferencial,
+            Activo = true,
+            ClienteId = clienteIdOriginal
+        };
+
+        // Ejecutamos el método PUT
+        bool exito = await MascotaService.ActualizarMascotaAsync(mascotaActualizada);
+
+        if (exito)
+        {
+            Nav.NavigateTo("/cliente/mascotas");
+        }
+        else
+        {
+            mensajeError = "Error al comunicarse con el servidor. No se pudieron actualizar los datos.";
+        }
     }
 
     private void Volver()

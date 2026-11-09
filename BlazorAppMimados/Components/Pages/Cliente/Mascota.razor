@@ -2,110 +2,119 @@
 @rendermode InteractiveServer
 @inject NavigationManager Nav
 
+
+@using Mimados_WebApp.Models
+@inject Mimados_WebApp.Services.MascotaServices.IMascotaService MascotaService
+
+
 <div class="container mt-4">
     
     @* Cabecera con título y botón de acción principal *@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Mis Mascotas</h2>
-
-
-
-        <button class="btn btn-success" @onclick=" IrANuevaMascota">
+        <button class="btn btn-success" @onclick="IrANuevaMascota">
             + Registrar Nueva Mascota
         </button>
-
-
-
-
     </div>
 
     @* Grilla de Tarjetas usando Bootstrap *@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         
-        @* Tarjeta de Mascota 1 (Datos simulados estáticos) *@
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 bg-light">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Firulais</h5>
-                    <span class="badge bg-light text-primary">Perro</span>
-                </div>
-                <div class="card-body">
-                    <p class="mb-1"><strong>Raza:</strong> Mestizo</p>
-                    <p class="mb-1"><strong>Sexo:</strong> Macho</p>
-                    <p class="mb-1"><strong>Nacimiento:</strong> 10/05/2020</p>
-                    <p class="mb-3"><strong>Peso ref:</strong> 15.5 kg</p>
-                    
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary">
-                            Ver Historial Clínico
-                        </button>
+    
+        @if (listaMascotas == null)
+        {
+            <div class="col-12">
+                <div class="alert alert-info">Cargando tus mascotas desde el servidor...</div>
+            </div>
+        }
+        else if (!listaMascotas.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-warning">Aún no tienes mascotas registradas.</div>
+            </div>
+        }
+        else
+        {
+            @foreach (var mascota in listaMascotas)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 bg-light">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                           
+                            <h5 class="mb-0 fw-bold">
+                                @mascota.Nombre
+                                
+                               @if (!mascota.Activo)
+                                {
+                                  <span class="badge bg-danger ms-2" style="font-size: 0.6em;">Inactivo</span>
+                                }
+                            
+                            
+                            </h5>
+
+
+                            <span class="badge bg-light text-primary">@mascota.Especie</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Raza:</strong> @mascota.Raza</p>
+                            <p class="mb-1"><strong>Sexo:</strong> @mascota.Sexo</p>
+                            <p class="mb-1"><strong>Nacimiento:</strong> @(mascota.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrado")</p>
+                            <p class="mb-3"><strong>Peso ref:</strong> @mascota.PesoReferencial kg</p>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary">
+                                    Ver Historial Clínico
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
+                            <button class="btn btn-warning btn-sm text-dark fw-bold" @onclick="() => IrAEditarMascota(mascota.MascotaId)">
+                                Editar
+                            </button>
+                            @* Agregamos el evento onclick para ejecutar el método de eliminar *@
+                            <button class="btn btn-danger btn-sm fw-bold" @onclick="() => EliminarMascota(mascota.MascotaId)">
+                                Eliminar
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
-
-                    
-
-                    <button class="btn btn-warning btn-sm text-dark fw-bold" @onclick="() => IrAEditarMascota(1)">
-                    Editar
-                    </button>
-
-
-
-                    <button class="btn btn-danger btn-sm fw-bold">
-                        Eliminar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        @* Tarjeta de Mascota 2 (Datos simulados estáticos) *@
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 bg-light">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Michi</h5>
-                    <span class="badge bg-light text-primary">Gato</span>
-                </div>
-                <div class="card-body">
-                    <p class="mb-1"><strong>Raza:</strong> Siamés</p>
-                    <p class="mb-1"><strong>Sexo:</strong> Hembra</p>
-                    <p class="mb-1"><strong>Nacimiento:</strong> 20/08/2022</p>
-                    <p class="mb-3"><strong>Peso ref:</strong> 4.2 kg</p>
-                    
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary">
-                            Ver Historial Clínico
-                        </button>
-                    </div>
-                </div>
-                <div class="card-footer bg-white border-top-0 d-flex justify-content-between pb-3">
-
-                    <button class="btn btn-warning btn-sm text-dark fw-bold" @onclick="() => IrAEditarMascota(2)">
-                     Editar
-                    </button>
-                    <button class="btn btn-danger btn-sm fw-bold">
-                        Eliminar
-                    </button>
-
-
-                </div>
-            </div>
-        </div>
+            }
+        }
+       
 
     </div>
 </div>
 
 
-
 @code{
 
+    private List<Mimados_WebApp.Models.Mascota>? listaMascotas;
 
-    public void IrANuevaMascota()
+        protected override async Task OnInitializedAsync()
     {
-        Nav.NavigateTo("/cliente/mascotas/nueva");
-
+        // Por ahora, forzamos tu ID de usuario de prueba (104) para ver datos reales.
+        // Más adelante, esto se cambiará para leer el ID del usuario que haya iniciado sesión.
+        listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(104);
     }
 
 
+private async Task EliminarMascota(int id)
+    {
+        
+        bool exito = await MascotaService.EliminarMascotaAsync(id);
+        
+        if (exito)
+        {
+            
+            listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(104);
+        }
+    }
+
+
+public void IrANuevaMascota()
+    {
+        Nav.NavigateTo("/cliente/mascotas/nueva");
+    }
     public void IrAEditarMascota(int id)
     {
         Nav.NavigateTo($"/cliente/mascotas/editar/{id}");
