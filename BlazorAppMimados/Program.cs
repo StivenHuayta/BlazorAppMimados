@@ -1,4 +1,5 @@
 using Mimados_WebApp.Services.MascotaServices;
+using BlazorAppMimados.Services;
 using Mimados_WebApp.Components;
 using Mimados_WebApp.Security;
 using Mimados_WebApp.Services;
@@ -9,9 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Autenticación por Cookies (similar al ejemplo de referencia en SoftProg-WebApp)
 builder.Services.AddCookieAuth();
 builder.Services.AddHttpClient<IAuthValidationService, AuthValidationService>();
+
+// URL Base del Backend Java REST
+string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/mimados-rs/rs/";
+
+// Registro de Servicios REST HTTP para Empleados y Horarios
+builder.Services.AddHttpClient<IEmpleadoService, EmpleadoService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+builder.Services.AddHttpClient<IHorarioLaboralService, HorarioLaboralService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 // Servicios de la aplicación
 builder.Services.AddSingleton<VeterinariaMockDataService>();
