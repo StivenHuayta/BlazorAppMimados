@@ -1,7 +1,6 @@
 ﻿@page "/sede/administrar"
 @inject NavigationManager Nav
 @using Mimados_WebApp.Models
-@using Mimados_WebApp.Services.SedeService
 @inject ISedeService SedeService
 
 
@@ -128,6 +127,9 @@
     private ISedeService sedeService; 
     private List<Sede> sedes=new List<Sede>();
 
+    private bool cargando = true;
+    private string mensajeError = "";
+
 //new List<Sede>
 //{
     //new Sede(1, "Sede Central - Lima", "Av. Javier Prado 123", "987654321", true),
@@ -136,8 +138,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Se ejecuta automáticamente al cargar la página de forma asíncrona y segura
-        sedes = await SedeService.ObtenerSedesAsync();
+        try
+        {
+            // Consumimos tu servicio
+            sedes = await SedeService.ObtenerSedesAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "Error al obtener las sedes:" +ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
     }
 
 

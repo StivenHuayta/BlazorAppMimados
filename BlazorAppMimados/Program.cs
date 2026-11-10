@@ -15,7 +15,8 @@ builder.Services.AddCookieAuth();
 builder.Services.AddHttpClient<IAuthValidationService, AuthValidationService>();
 
 // URL Base del Backend Java REST
-string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/mimados-rs/rs/";
+//string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/mimados-rs/rs/";
+string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/MimadosRS/webresources/";
 
 // Registro de Servicios REST HTTP para Empleados y Horarios
 builder.Services.AddHttpClient<IEmpleadoService, EmpleadoService>(client =>
@@ -37,7 +38,11 @@ builder.Services.AddScoped<IMascotaService, MascotaService>();
 
 
 //servicios de sede
-builder.Services.AddScoped<ISedeService, SedeServiceImpl>();
+//builder.Services.AddScoped<ISedeService, SedeServiceImpl>();
+builder.Services.AddHttpClient<ISedeService, SedeServiceImpl>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 
 var app = builder.Build();
