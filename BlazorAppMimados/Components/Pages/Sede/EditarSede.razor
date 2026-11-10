@@ -1,9 +1,12 @@
 ﻿@page "/sede/administrar/editar/{Id:int}"
 @rendermode InteractiveServer
-@using Mimados_WebApp.Models
 @using System.ComponentModel.DataAnnotations
+@using Mimados_WebApp.Models
+@using Mimados_WebApp.Models.DTO
 @inject NavigationManager Nav
 @inject ISedeService SedeService
+@using Mimados_WebApp.Services.SedeServicioService
+@inject ISedeServicioService SedeServicioService
 
 <div class="container-fluid mt-4">
     
@@ -114,10 +117,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var ser in listaServicios)
+                            @foreach (var ser in listaServiciosDTO)
                 {
                     <tr class="align-middle">
-                        <td>@ser.Id</td>
+                        <td>@ser.IdServicio</td>
                         <td>@ser.Nombre</td>
                         <td>@ser.Descripcion</td>
                         <td>@ser.PrecioReferencial</td>
@@ -156,6 +159,7 @@
 
     List<Servicio> listaServicios = new List<Servicio>();
     List<SedeServicio> lisAux = new List<SedeServicio>();
+    List<SedeServicioDTO> listaServiciosDTO = new List<SedeServicioDTO>();
 
 
 
@@ -173,6 +177,8 @@
         {
             // 1. Consultamos la sede existente usando el método que creaste
             var sedeBD = await SedeService.ObtenerSedePorIdAsync(Id);
+
+            listaServiciosDTO = await SedeServicioService.ObtenerServiciosPorSedeAsync(Id);
 
             if (sedeBD != null)
             {
