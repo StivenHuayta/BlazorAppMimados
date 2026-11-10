@@ -162,6 +162,29 @@ namespace Mimados_WebApp.Services.MascotaServices;
         }
     }
 
+
+    public async Task<List<RegistroMedico>> ObtenerHistorialAsync(int mascotaId)
+    {
+        try
+        {
+            // Ajusta la URL si tu endpoint base es diferente
+            
+            var url = $"{BASE_URL}/historial/{mascotaId}";
+
+            var historial = await _httpClient.GetFromJsonAsync<List<RegistroMedico>>(url);
+            return historial ?? new List<RegistroMedico>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener el historial médico de la mascota {Id}", mascotaId);
+            return new List<RegistroMedico>(); // Retorna lista vacía en caso de error
+        }
+    }
+
+
+
+
+
     private class MascotaJavaResponse
     {
         public int Id { get; set; }

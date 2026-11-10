@@ -62,8 +62,8 @@
                             <p class="mb-3"><strong>Peso ref:</strong> @mascota.PesoReferencial kg</p>
                             
                             <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary">
-                                    Ver Historial Clínico
+                                <button class="btn btn-info btn-sm" @onclick="() => IrAHistorial(mascota.MascotaId)">
+                                    <i class="bi bi-journal-medical"></i> Ver Historial
                                 </button>
                             </div>
                         </div>
@@ -119,6 +119,12 @@ public void IrANuevaMascota()
     {
         Nav.NavigateTo($"/cliente/mascotas/editar/{id}");
 
+    }
+
+
+    private void IrAHistorial(int id)
+    {
+        Nav.NavigateTo($"/cliente/mascotas/{id}/historial");
     }
 
 
