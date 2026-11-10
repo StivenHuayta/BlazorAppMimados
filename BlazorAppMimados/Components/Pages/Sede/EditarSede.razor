@@ -16,14 +16,14 @@
 
     @if (editarSede == null)
     {
-        <div class="alert alert-info">Cargando datos de la mascota...</div>
+        <div class="alert alert-info">Cargando datos de la Sede...</div>
     }
     else
     {
         <div class="card p-4 shadow-sm border-0 bg-light">
             
             @* Reutilizamos el EditForm con validación nativa (Diapositiva 39) *@
-            <EditForm Model="@editarSede" OnValidSubmit="ActualizarMascota">
+            <EditForm Model="@editarSede" OnValidSubmit="ActualizarSede">
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
@@ -156,7 +156,7 @@
 
     List<Servicio> listaServicios = new List<Servicio>();
     List<SedeServicio> lisAux = new List<SedeServicio>();
-    
+
 
 
     private SedeEditar editarSede = new SedeEditar ();
@@ -201,6 +201,33 @@
     }
 
 
+    private async Task ActualizarSede()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
+        {
+            Sede sede = new Sede();
+            sede.Id = Id;       
+            sede.Nombre = editarSede.Nombre;
+            sede.Direccion = editarSede.Direccion;
+            sede.Telefono = editarSede.Telefono;
+            await SedeService.ActualizarSedeAsync(sede);
+
+            // Si todo sale bien y no lanza excepción, redirige a la lista de administración
+            Nav.NavigateTo("/sede/administrar");
+        }
+        catch (Exception ex)
+        {
+            // Atrapa cualquier error (incluyendo el mensaje que mande el ApiResponse del backend)
+            mensajeError = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
     
 
     private void Volver()

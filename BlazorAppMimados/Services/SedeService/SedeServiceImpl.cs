@@ -56,7 +56,7 @@ namespace Mimados_WebApp.Services.SedeService
             };
 
 
-            var response = await _http.PostAsJsonAsync("SedeRS/registrar", datos);
+            var response = await _http.PostAsJsonAsync($"SedeRS/registrar", datos);
 
             if (!response.IsSuccessStatusCode)
                 return false;
@@ -67,8 +67,32 @@ namespace Mimados_WebApp.Services.SedeService
             return resultado?.Success == true;
         }
 
+        public async Task<bool> ActualizarSedeAsync(Sede sede)
+        {
+            var datos = new
+            {
+                id = sede.Id,
+                nombre = sede.Nombre,
+                direccion = sede.Direccion,
+                telefono = sede.Telefono
+            };
 
-        
+            var response = await _http.PutAsJsonAsync($"SedeRS", datos);
+
+            var resultado = await response.Content
+                               .ReadFromJsonAsync<ApiResponse<object>>();
+
+            if (!response.IsSuccessStatusCode || resultado?.Success != true)
+            {
+                throw new Exception(
+                    resultado?.Message ?? "No se pudo actualizar la sede.");
+            }
+
+            return true;
+        }
+
+
+
 
 
         public class SedeJavaResponse
