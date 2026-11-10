@@ -1,8 +1,9 @@
-using Mimados_WebApp.Services.MascotaServices;
 using BlazorAppMimados.Services;
 using Mimados_WebApp.Components;
 using Mimados_WebApp.Security;
 using Mimados_WebApp.Services;
+using Mimados_WebApp.Services.MascotaServices;
+using Mimados_WebApp.Services.SedeService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,10 @@ builder.Services.AddSingleton<VeterinariaMockDataService>();
 //PARA SERVICIO DE MASCOTA
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<IMascotaService, MascotaService>();
+
+
+//servicios de sede
+builder.Services.AddScoped<ISedeService, SedeServiceImpl>();
 
 
 var app = builder.Build();
