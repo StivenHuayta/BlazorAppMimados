@@ -26,6 +26,15 @@ namespace Mimados_WebApp.Services.SedeService
         _logger = logger;
     }
     */
+        public async Task<Sede?> ObtenerSedePorIdAsync(int id)
+        {
+            var respuesta = await _http.GetFromJsonAsync<ApiResponse<Sede>>(
+            $"SedeRS/{id}");
+
+            return respuesta?.Data;
+
+        }
+
 
         public async Task<List<Sede>> ObtenerSedesAsync()
         {
@@ -57,6 +66,9 @@ namespace Mimados_WebApp.Services.SedeService
 
             return resultado?.Success == true;
         }
+
+
+        
 
 
         public class SedeJavaResponse

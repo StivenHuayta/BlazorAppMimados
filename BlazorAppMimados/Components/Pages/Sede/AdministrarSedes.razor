@@ -54,68 +54,80 @@
 
         <ChildContent>
         
-
-        @* TODO: a vanilla-JS datatable library (Tabulator/Simple-DataTables) could be
+            @if (cargando)
+            {
+                <p><em>Cargando sedes...</em></p>
+            }
+            else if (sedes == null || !sedes.Any())
+            {
+                <p>No se encontraron sedes registradas.</p>
+            }
+            else
+            {
+                @* TODO: a vanilla-JS datatable library (Tabulator/Simple-DataTables) could be
            initialised against this table to make search, sort and pagination live. *@
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th style="width: 60px">
-                         #
-                    </th>
-                    <th>
-                        
-                            Nombre 
-                        
-                    </th>
-                    <th>
-          
-                            Direccion 
-                        
-                    </th>
-                    <th style="width: 120px">
-                        
-                            Telefono 
-                        
-                    </th>
-                    <th style="width: 130px" class="text-center">Estado</th>
-                    <th style="width: 130px">
-                        
-                            Editar 
-                        
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var sed in sedes)
-                {
-                    <tr class="align-middle">
-                        <td>@sed.Id</td>
-                        <td>@sed.Nombre</td>
-                        <td>@sed.Direccion</td>
-                        <td>@sed.Telefono</td>
-                        <td class="text-center align-middle">
-                        @if (sed.Activo)
-                            {
-                                
-                                <span class="badge bg-success px-2 py-1">Activo</span>
-                               }
-                        else
-                            {
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px">
+                                #
+                            </th>
+                            <th>
 
-                            <span class="badge bg-danger px-2 py-1">Inactivo</span>
-                            }
-                    </td>
-                    <td >
-                        <a href="@($"/sede/administrar/editar/{sed.Id}")" class="btn btn-warning btn-sm">
-                            <i class="bi bi-eye"></i> Ver
-                        </a>
-                    </td>
-                        
-                    </tr>
-                }
-            </tbody>
-        </table>
+                                Nombre
+
+                            </th>
+                            <th>
+
+                                Direccion
+
+                            </th>
+                            <th style="width: 120px">
+
+                                Telefono
+
+                            </th>
+                            <th style="width: 130px" class="text-center">Estado</th>
+                            <th style="width: 130px">
+
+                                Editar
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sed in sedes)
+                        {
+                            <tr class="align-middle">
+                                <td>@sed.Id</td>
+                                <td>@sed.Nombre</td>
+                                <td>@sed.Direccion</td>
+                                <td>@sed.Telefono</td>
+                                <td class="text-center align-middle">
+                                    @if (sed.Activo)
+                                    {
+
+                                        <span class="badge bg-success px-2 py-1">Activo</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-danger px-2 py-1">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@($"/sede/administrar/editar/{sed.Id}")" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+        
         </ChildContent>
     </Card>
 </div>
@@ -138,14 +150,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        mensajeError = null;
+
         try
         {
-            // Consumimos tu servicio
             sedes = await SedeService.ObtenerSedesAsync();
         }
         catch (Exception ex)
         {
-            mensajeError = "Error al obtener las sedes:" +ex.Message;
+            mensajeError = "Error al obtener las sedes: " + ex.Message;
         }
         finally
         {
