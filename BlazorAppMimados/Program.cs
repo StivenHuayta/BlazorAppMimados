@@ -4,6 +4,7 @@ using Mimados_WebApp.Security;
 using Mimados_WebApp.Services;
 using Mimados_WebApp.Services.MascotaServices;
 using Mimados_WebApp.Services.SedeService;
+using Mimados_WebApp.Services.ServicioService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,11 @@ builder.Services.AddScoped<IMascotaService, MascotaService>();
 //servicios de sede
 //builder.Services.AddScoped<ISedeService, SedeServiceImpl>();
 builder.Services.AddHttpClient<ISedeService, SedeServiceImpl>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+builder.Services.AddHttpClient<IServicioService, ServicioServiceImpl>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });

@@ -1,6 +1,7 @@
 ﻿@page "/sede/administrar"
 @inject NavigationManager Nav
 @using Mimados_WebApp.Models
+@rendermode InteractiveServer
 @inject ISedeService SedeService
 
 
@@ -177,7 +178,10 @@
         Console.WriteLine("aplicando filtros");
 
     }
-    private void LimpiarFiltros(){
+    private async Task LimpiarFiltros(){
+        filtroDireccion=String.Empty;
+        filtroNombre=String.Empty;
+        await CargarDatos();
         Console.WriteLine("limpiando filtros");
 
     }

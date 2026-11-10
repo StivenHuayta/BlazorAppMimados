@@ -1,5 +1,7 @@
 ﻿@page "/servicio/administrar"
 @using Mimados_WebApp.Models
+@inject NavigationManager Nav
+@inject IServicioService ServicioService
 
 
 <div class="container mt-4 mb-5">
@@ -66,9 +68,17 @@
         
 
         <ChildContent>
-        
-
-        @* TODO: a vanilla-JS datatable library (Tabulator/Simple-DataTables) could be
+        @if (cargando)
+            {
+                <p><em>Cargando servicios...</em></p>
+            }
+            else if (listaServicios == null || !listaServicios.Any())
+            {
+                <p>No se encontraron servicios registrados.</p>
+            }
+            else
+            {
+                @* TODO: a vanilla-JS datatable library (Tabulator/Simple-DataTables) could be
            initialised against this table to make search, sort and pagination live. *@
         <table class="table table-hover align-middle mb-0">
             <thead class="align-middle ">
@@ -128,6 +138,9 @@
                 }
             </tbody>
         </table>
+            }
+
+        
         </ChildContent>
     </Card>
 </div>
@@ -139,18 +152,43 @@
     private int filtroDuracionMin;
     private int filtroDuracionMax;
 
-    List<Servicio> listaServicios = new List<Servicio>
-    {
-    new Servicio(1, "Baño y Corte", "Baño completo con champú medicado, secado y corte de pelo.", 50.0, 60, true),
-    new Servicio(2, "Consulta Veterinaria General", "Evaluación clínica integral del estado de salud de la mascota.", 70.0, 30, true),
-    new Servicio(3, "Limpieza Dental", "Profilaxis dental ultrasónica para prevención de sarro y halitosis.", 120.0, 45, true)
-    };
 
+    private bool cargando = true;
+    private string mensajeError = "";
+
+    List<Servicio> listaServicios = new List<Servicio>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
+        {
+            listaServicios = await ServicioService.ObtenerServiciosAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "Error al obtener los servicios: " + ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
     private void AplicarFiltros(){
+
         Console.WriteLine("aplicando filtros");
 
     }
     private void LimpiarFiltros(){
+        
         Console.WriteLine("limpiando filtros");
 
     }
