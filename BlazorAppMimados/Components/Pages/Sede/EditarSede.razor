@@ -3,6 +3,7 @@
 @using Mimados_WebApp.Models
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Nav
+@inject ISedeService SedeService
 
 <div class="container-fluid mt-4">
     
@@ -15,14 +16,14 @@
 
     @if (editarSede == null)
     {
-        <div class="alert alert-info">Cargando datos de la mascota...</div>
+        <div class="alert alert-info">Cargando datos de la Sede...</div>
     }
     else
     {
         <div class="card p-4 shadow-sm border-0 bg-light">
             
             @* Reutilizamos el EditForm con validación nativa (Diapositiva 39) *@
-            <EditForm Model="@editarSede" OnValidSubmit="ActualizarMascota">
+            <EditForm Model="@editarSede" OnValidSubmit="ActualizarSede">
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
@@ -154,55 +155,80 @@
     public int Id { get; set; }
 
     List<Servicio> listaServicios = new List<Servicio>();
-    
+    List<SedeServicio> lisAux = new List<SedeServicio>();
+
 
 
     private SedeEditar editarSede = new SedeEditar ();
 
+    private bool cargando = true;
+    private bool guardando = false;
+    private string? mensajeError;
 
-    protected override void OnInitialized()
+
+
+    protected override async Task OnInitializedAsync()
     {
-        // Simulamos buscar la mascota en la Base de Datos usando el Id que llegó en la URL
-        Console.WriteLine($"Buscando en BD la mascota con ID: {Id}");
+        try
+        {
+            // 1. Consultamos la sede existente usando el método que creaste
+            var sedeBD = await SedeService.ObtenerSedePorIdAsync(Id);
 
-        // Simulación de carga de datos para rellenar el formulario
-        if (Id == 1)
-        {
-              editarSede = new SedeEditar
-                                        {
-                                            Nombre = "Sede Central - Lima",
-                                            Direccion = "Av. Javier Prado 123",
-                                            Telefono = "987654321",
-                                            Activo = true
-                                        };
-            listaServicios=new List<Servicio>
+            if (sedeBD != null)
             {
-            new Servicio(1, "Baño y Corte", "Baño completo con champú medicado, secado y corte de pelo.", 50.0, 60, true),
-            new Servicio(2, "Consulta Veterinaria General", "Evaluación clínica integral del estado de salud de la mascota.", 70.0, 30, true),
-            };
-        }
-        else if (Id == 2)
-        {
-             editarSede = new SedeEditar
-                                        {
-                                            Nombre = "Sede Norte - Los Olivos",
-                                            Direccion = "Av. Alfredo Mendiola 456",
-                                            Telefono = "912345678",
-                                            Activo = true
-                                        };
-            listaServicios=new List<Servicio>
+                // 2. Pasamos los datos de la base de datos al modelo del formulario
+                editarSede = new SedeEditar
+                {
+                    Nombre = sedeBD.Nombre,
+                    Direccion = sedeBD.Direccion,
+                    Telefono = sedeBD.Telefono,
+                    Activo = sedeBD.Activo
+                };
+            }
+            else
             {
-            new Servicio(1, "Baño y Corte", "Baño completo con champú medicado, secado y corte de pelo.", 50.0, 60, true),
-            new Servicio(2, "Consulta Veterinaria General", "Evaluación clínica integral del estado de salud de la mascota.", 70.0, 30, true),
-            new Servicio(3, "Limpieza Dental", "Profilaxis dental ultrasónica para prevención de sarro y halitosis.", 120.0, 45, true)
-            };
+                mensajeError = "No se encontró la sede solicitada.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Si inventan un ID que no existe, cargamos un modelo vacío o podemos redirigir a un error
-            editarSede = new SedeEditar ();
+            mensajeError = $"Error al cargar la sede: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
         }
     }
+
+
+    private async Task ActualizarSede()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
+        {
+            Sede sede = new Sede();
+            sede.Id = Id;       
+            sede.Nombre = editarSede.Nombre;
+            sede.Direccion = editarSede.Direccion;
+            sede.Telefono = editarSede.Telefono;
+            await SedeService.ActualizarSedeAsync(sede);
+
+            // Si todo sale bien y no lanza excepción, redirige a la lista de administración
+            Nav.NavigateTo("/sede/administrar");
+        }
+        catch (Exception ex)
+        {
+            // Atrapa cualquier error (incluyendo el mensaje que mande el ApiResponse del backend)
+            mensajeError = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+    
 
     private void Volver()
     {
