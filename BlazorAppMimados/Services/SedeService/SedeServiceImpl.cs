@@ -8,7 +8,7 @@ namespace Mimados_WebApp.Services.SedeService
     public class SedeServiceImpl: ISedeService
 {
     private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/SedeRS";
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient;//comantario
     private readonly ILogger<SedeServiceImpl> _logger;
 
     public SedeServiceImpl(HttpClient httpClient, ILogger<SedeServiceImpl> logger)
