@@ -79,13 +79,11 @@ namespace Mimados_WebApp.Services.SedeService
 
             var response = await _http.PutAsJsonAsync($"SedeRS", datos);
 
-            var resultado = await response.Content
-                               .ReadFromJsonAsync<ApiResponse<object>>();
-
-            if (!response.IsSuccessStatusCode || resultado?.Success != true)
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception(
-                    resultado?.Message ?? "No se pudo actualizar la sede.");
+                // los actualizadores devuelven un ok, no mensajes
+                string errorMsg = await response.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrEmpty(errorMsg) ? "No se pudo actualizar la sede." : errorMsg);
             }
 
             return true;
