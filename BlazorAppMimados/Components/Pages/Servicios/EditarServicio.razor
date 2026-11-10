@@ -24,7 +24,7 @@
         <div class="card p-4 shadow-sm border-0 bg-light">
             
             @* Reutilizamos el EditForm con validación nativa (Diapositiva 39) *@
-            <EditForm Model="@nuevoServicio" OnValidSubmit="ActualizarMascota">
+            <EditForm Model="@nuevoServicio" OnValidSubmit="ActualizarServicio">
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
@@ -122,6 +122,40 @@
         }
     }
 
+    private async Task ActualizarServicio()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
+        {
+            Servicio servicio = new Servicio();
+            servicio.Id = Id;
+            servicio.Nombre = nuevoServicio.Nombre;
+            servicio.Descripcion = nuevoServicio.Descripcion;
+            servicio.PrecioReferencial = (double)nuevoServicio.PrecioReferencial;
+            servicio.DuracionMinutos = nuevoServicio.DuracionMinutos;
+            servicio.Activo = nuevoServicio.Activo;
+
+            await ServicioService.ActualizarServicioAsync(servicio);
+            Console.WriteLine($"Actualizando datos del servicio ID {Id}: {nuevoServicio?.Nombre}");
+
+
+            // Si todo sale bien y no lanza excepción, redirige a la lista de administración
+            Nav.NavigateTo("/servicio/administrar");
+        }
+        catch (Exception ex)
+        {
+            // Atrapa cualquier error (incluyendo el mensaje que mande el ApiResponse del backend)
+            mensajeError = ex.Message;
+            Console.WriteLine($"Error capturado: {mensajeError}");
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
     private void Volver()
     {
         Nav.NavigateTo("/servicio/administrar");
@@ -130,7 +164,6 @@
     private void ActualizarMascota()
     {
         // Aquí usarías HttpClient (PUT) para actualizar en BD
-        Console.WriteLine($"Actualizando datos del servicio ID {Id}: {nuevoServicio?.Nombre}");
         
         // Regresamos a la grilla principal
         Nav.NavigateTo("/servicio/administrar");

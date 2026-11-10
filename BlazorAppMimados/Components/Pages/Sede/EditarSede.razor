@@ -213,6 +213,7 @@
             sede.Nombre = editarSede.Nombre;
             sede.Direccion = editarSede.Direccion;
             sede.Telefono = editarSede.Telefono;
+            sede.Activo = editarSede.Activo;
             await SedeService.ActualizarSedeAsync(sede);
 
             // Si todo sale bien y no lanza excepción, redirige a la lista de administración

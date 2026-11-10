@@ -50,6 +50,29 @@ namespace Mimados_WebApp.Services.ServicioService
             return resultado?.Success == true;
         }
 
+        public async Task<bool> ActualizarServicioAsync(Servicio servicio)
+        {
+            var datos = new
+            {
+                id = servicio.Id,
+                nombre = servicio.Nombre,
+                descripcion = servicio.Descripcion,
+                precioReferencial = servicio.PrecioReferencial,
+                duracionMinutos = servicio.DuracionMinutos
+            };
+
+            var response = await _http.PutAsJsonAsync($"ServicioRS", datos);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // los actualizadores devuelven un Response.ok().build(); 200
+                string errorMsg = await response.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrEmpty(errorMsg) ? "No se pudo actualizar el servicio." : errorMsg);
+            }
+
+            return true;
+        }
+
 
 
         public class ServicioJavaResponse
