@@ -140,18 +140,18 @@
                     </small>
 
 
-                    <!-- Duración -->
+                    <!-- Duración definida por la clínica -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">
-                            Duración (minutos):
+                            Duración de la cita:
                         </label>
 
-                        <input type="number"
-                               class="form-control"
-                               min="10"
-                               max="240"
-                               step="5"
-                               @bind="duracionMinutos" />
+                        <input class="form-control"
+                               value="30 minutos"
+                               readonly />
+                        <small class="text-muted">
+                            Duración establecida por la clínica.
+                        </small>
                     </div>
 
                     <!-- Motivo -->
@@ -207,7 +207,7 @@
 
     private DateTime fecha = DateTime.Today;
     private TimeOnly? hora;
-    private int duracionMinutos = 30;
+    private const int DuracionCitaMinutos = 30;
     private string motivo = "";
 
     private bool cargando = true;
@@ -232,13 +232,6 @@
             {
                 fecha = cita.FechaHoraInicio.Date;
                 hora = TimeOnly.FromDateTime(cita.FechaHoraInicio);
-
-                duracionMinutos = (int)(
-                    cita.FechaHoraFin - cita.FechaHoraInicio
-                ).TotalMinutes;
-
-                if (duracionMinutos <= 0)
-                    duracionMinutos = 30;
 
                 motivo = cita.Motivo ?? "";
             }
@@ -284,12 +277,6 @@
             return;
         }
 
-        if (duracionMinutos < 10 || duracionMinutos > 240)
-        {
-            mensajeError = "La duración debe estar entre 10 y 240 minutos.";
-            return;
-        }
-
         if (string.IsNullOrWhiteSpace(motivo))
         {
             mensajeError = "Debe ingresar el motivo de la cita.";
@@ -297,7 +284,7 @@
         }
 
         DateTime fechaFin =
-            fechaInicio.AddMinutes(duracionMinutos);
+            fechaInicio.AddMinutes(DuracionCitaMinutos);
 
         Cita citaActualizada = new Cita
         {

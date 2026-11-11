@@ -71,16 +71,14 @@
             </div>
 
             <!-- Duracion -->
-            <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <label class="form-label fw-bold">
                     Duración de la cita:
                 </label>
 
-                <select class="form-select" @bind="duracionMinutos">
-                    <option value="30">30 minutos</option>
-                    <option value="45">45 minutos</option>
-                    <option value="60">60 minutos</option>
-                </select>
+                <input class="form-control"
+                       value="30 minutos"
+                       readonly />
             </div>
 
         </div>

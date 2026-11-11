@@ -6,6 +6,11 @@
 @using Mimados_WebApp.Models
 @using Mimados_WebApp.Services
 @using Mimados_WebApp.Services.CitaServices
+@using Mimados_WebApp.Services.MascotaServices
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IMascotaService MascotaService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @inject ICitaService CitaService
 @inject IVeterinarioService VeterinarioService
@@ -44,16 +49,32 @@
 
         <div class="row">
 
-            <!-- Mascota temporal -->
+            <!-- Mascotas activas del cliente autenticado -->
             <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">
+                <label class="form-label fw-bold" for="mascotaSelect">
                     Mascota:
                 </label>
 
-                <select class="form-select" @bind="mascotaId">
-                    <option value="0">-- Seleccione --</option>
-                    <option value="1">Mascota de prueba (ID 1)</option>
+                <select id="mascotaSelect"
+                        class="form-select"
+                        @bind="mascotaId"
+                        disabled="@(cargandoMascotas || mascotas.Count == 0 || reservaConfirmada)">
+                    <option value="0">-- Seleccione una mascota --</option>
+
+                    @foreach (var mascota in mascotas)
+                    {
+                        <option value="@mascota.MascotaId">@mascota.Nombre</option>
+                    }
                 </select>
+
+                @if (cargandoMascotas)
+                {
+                    <small class="text-muted">Cargando mascotas...</small>
+                }
+                else if (!string.IsNullOrWhiteSpace(mensajeMascotas))
+                {
+                    <small class="text-danger">@mensajeMascotas</small>
+                }
             </div>
 
             <!-- Veterinarios reales -->
@@ -91,47 +112,35 @@
                        @bind="fecha" />
             </div>
 
-            <!-- Hora -->
-            
-            <div class="row">
-                <div class="col-6">
-                    <label class="form-label">Hora (24 h):</label>
-                    <select class="form-select" @bind="Hora24">
-                        @for (int i = 0; i < 24; i++)
-                        {
-                            <option value="@i">@($"{i:00}")</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="col-6">
-                    <label class="form-label">Minutos:</label>
-                    <select class="form-select" @bind="Minuto">
-                        @for (int i = 0; i < 60; i += 5)
-                        {
-                            <option value="@i">@($"{i:00}")</option>
-                        }
-                    </select>
-                </div>
+            <!-- Hora en formato de 24 horas -->
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Hora (24 h):</label>
+                <select class="form-select" @bind="Hora24">
+                    @for (int i = 0; i < 24; i++)
+                    {
+                        <option value="@i">@($"{i:00}")</option>
+                    }
+                </select>
             </div>
 
-            <small class="text-muted">
-                Hora seleccionada (24 h):
-                @(hora?.ToString("HH:mm") ?? "--:--")
-            </small>
-
-
-            <!-- Duracion -->
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">
-                    Duración de la cita:
-                </label>
-
-                <select class="form-select" @bind="duracionMinutos">
-                    <option value="30">30 minutos</option>
-                    <option value="45">45 minutos</option>
-                    <option value="60">60 minutos</option>
+            <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Minutos:</label>
+                <select class="form-select" @bind="Minuto">
+                    @for (int i = 0; i < 60; i += 5)
+                    {
+                        <option value="@i">@($"{i:00}")</option>
+                    }
                 </select>
+                <small class="text-muted">
+                    Hora seleccionada: @(hora?.ToString("HH:mm") ?? "--:--")
+                </small>
+            </div>
+
+            <!-- Duración definida por la clínica; el cliente no la selecciona -->
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Duración de la cita:</label>
+                <div class="form-control bg-white">30 minutos</div>
+                <small class="text-muted">Duración establecida por la clínica.</small>
             </div>
 
             <!-- Motivo -->
@@ -159,7 +168,7 @@
 
             <button type="button"
                     class="btn btn-success px-4"
-                    disabled="@(procesando || reservaConfirmada || cargandoVeterinarios)"
+                    disabled="@(procesando || reservaConfirmada || cargandoVeterinarios || cargandoMascotas || mascotas.Count == 0)"
                     @onclick="ConfirmarReserva">
 
                 @(procesando ? "Registrando..." : "Reservar Cita")
@@ -199,17 +208,14 @@
     [SupplyParameterFromQuery(Name = "hora")]
     public string? HoraQuery { get; set; }
 
-    [SupplyParameterFromQuery(Name = "duracion")]
-    public int? DuracionQuery { get; set; }
-
     // Datos del formulario
-    private int mascotaId = 1;
+    private int mascotaId = 0;
     private int empleadoId = 0;
 
     private DateTime fecha = DateTime.Today.AddDays(1);
     private TimeOnly? hora = new TimeOnly(10, 0);
 
-    private int duracionMinutos = 30;
+    private const int DuracionCitaMinutos = 30;
     private string motivo = "";
 
     // Veterinarios reales
@@ -217,9 +223,14 @@
 
     // Estado
     private bool cargandoVeterinarios = true;
+    private bool cargandoMascotas = true;
     private bool procesando = false;
     private bool reservaConfirmada = false;
     private string mensajeError = "";
+    private string mensajeMascotas = "";
+
+    private List<Mascota> mascotas = new();
+
 
     // Cargar veterinarios y recibir seleccion
     protected override async Task OnParametersSetAsync()
@@ -263,13 +274,6 @@
                 hora = horaRecibida;
             }
 
-            if (DuracionQuery.HasValue &&
-                (DuracionQuery.Value == 30 ||
-                 DuracionQuery.Value == 45 ||
-                 DuracionQuery.Value == 60))
-            {
-                duracionMinutos = DuracionQuery.Value;
-            }
         }
         catch (Exception ex)
         {
@@ -289,9 +293,15 @@
 
         mensajeError = "";
 
-        if (mascotaId <= 0 || empleadoId <= 0)
+        if (mascotaId <= 0 || !mascotas.Any(m => m.MascotaId == mascotaId))
         {
-            mensajeError = "Seleccione una mascota y un veterinario.";
+            mensajeError = "Seleccione una mascota válida de su cuenta.";
+            return;
+        }
+
+        if (empleadoId <= 0)
+        {
+            mensajeError = "Seleccione un veterinario.";
             return;
         }
 
@@ -323,7 +333,7 @@
         }
 
         DateTime fechaFin =
-            fechaInicio.AddMinutes(duracionMinutos);
+            fechaInicio.AddMinutes(DuracionCitaMinutos);
 
         procesando = true;
 
@@ -332,7 +342,7 @@
             // Comprobar nuevamente el horario
             var horariosLibres =
                 await DisponibilidadService.ConsultarAsync(
-                    empleadoId, fecha, duracionMinutos);
+                    empleadoId, fecha, DuracionCitaMinutos);
 
             bool horarioDisponible = horariosLibres.Any(h =>
                 TimeOnly.TryParse(h, out var horaLibre) &&
@@ -378,6 +388,52 @@
     }
 
     
+
+    private async Task CargarMascotasAsync()
+    {
+        cargandoMascotas = true;
+        mascotas = new List<Mascota>();
+        mascotaId = 0;
+        mensajeMascotas = "";
+
+        try
+        {
+            var estado = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var usuario = estado.User;
+            var idTexto = usuario.FindFirst("UsuarioId")?.Value;
+
+            if (usuario.Identity?.IsAuthenticated != true ||
+                !int.TryParse(idTexto, out int usuarioId))
+            {
+                mensajeMascotas = "No se pudo identificar al cliente. Inicia sesión nuevamente.";
+                return;
+            }
+
+            var resultado = await MascotaService.ObtenerMascotasPorClienteAsync(usuarioId);
+            mascotas = (resultado ?? new List<Mascota>())
+                .Where(m => m.Activo)
+                .ToList();
+
+            if (mascotas.Count == 0)
+            {
+                mensajeMascotas = "No hay mascotas activas registradas para esta cuenta.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeMascotas = "No se pudieron cargar las mascotas: " + ex.Message;
+        }
+        finally
+        {
+            cargandoMascotas = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarMascotasAsync();
+    }
+
     private int Hora24
     {
         get => hora?.Hour ?? 10;

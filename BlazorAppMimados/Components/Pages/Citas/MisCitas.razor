@@ -4,6 +4,7 @@
 @using Mimados_WebApp.Models
 @using Mimados_WebApp.Services.CitaServices
 @using Mimados_WebApp.Services.MascotaServices
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject ICitaService CitaService
 @inject IMascotaService MascotaService
@@ -40,21 +41,15 @@
         <div class="card-body p-0">
             @if (cargando)
             {
-                <div class="alert alert-info m-3">
-                    Cargando citas...
-                </div>
+                <div class="alert alert-info m-3">Cargando citas...</div>
             }
             else if (!string.IsNullOrEmpty(mensajeError))
             {
-                <div class="alert alert-danger m-3">
-                    @mensajeError
-                </div>
+                <div class="alert alert-danger m-3">@mensajeError</div>
             }
             else if (listaCitas.Count == 0)
             {
-                <div class="alert alert-info m-3">
-                    No tienes citas registradas.
-                </div>
+                <div class="alert alert-info m-3">No tienes citas registradas.</div>
             }
             else
             {
@@ -74,14 +69,10 @@
                             @foreach (var cita in listaCitas)
                             {
                                 <tr>
-                                    <td class="ps-3">
-                                        @($"C-{cita.CitaId:D3}")
-                                    </td>
+                                    <td class="ps-3">@($"C-{cita.CitaId:D3}")</td>
                                     <td>@cita.NombreMascota</td>
                                     <td>@cita.Motivo</td>
-                                    <td>
-                                        @cita.FechaHoraInicio.ToString("dd/MM/yyyy, HH:mm")
-                                    </td>
+                                    <td>@cita.FechaHoraInicio.ToString("dd/MM/yyyy, HH:mm")</td>
                                     <td>
                                         <span class="badge @ObtenerColorEstado(cita.Estado)">
                                             @cita.Estado
@@ -93,15 +84,12 @@
                                                href="@($"/cliente/citas/detalle/{cita.CitaId}")">
                                                 Ver
                                             </a>
-                                            @if (cita.Estado == "PROGRAMADA" ||cita.Estado == "CONFIRMADA")
+                                            @if (cita.Estado == "PROGRAMADA" || cita.Estado == "CONFIRMADA")
                                             {
                                                 <a class="btn btn-outline-warning btn-sm"
                                                    href="@($"/cliente/citas/editar/{cita.CitaId}")">
                                                     Editar
                                                 </a>
-                                            }
-                                            @if (cita.Estado == "PROGRAMADA" | cita.Estado == "CONFIRMADA")
-                                            {
                                                 <a class="btn btn-outline-danger btn-sm"
                                                    href="@($"/cliente/citas/cancelar/{cita.CitaId}")">
                                                     Cancelar
@@ -124,28 +112,58 @@
     private bool cargando = true;
     private string mensajeError = "";
 
-    
-protected override async Task OnInitializedAsync()
-{
-    try
+    protected override async Task OnInitializedAsync()
     {
-        listaCitas = await CitaService.ListarPorMascotaAsync(1);
+        cargando = true;
+        mensajeError = "";
 
-        foreach (var cita in listaCitas)
+        try
         {
-            cita.NombreMascota = "Mascota de prueba";
+            // Identificar al cliente que inició sesión.
+            var estado = await AuthStateProvider.GetAuthenticationStateAsync();
+            var usuario = estado.User;
+            string? idTexto = usuario.FindFirst("UsuarioId")?.Value;
+
+            if (usuario.Identity?.IsAuthenticated != true ||
+                !int.TryParse(idTexto, out int usuarioId))
+            {
+                mensajeError = "No se pudo identificar al cliente que inició sesión.";
+                return;
+            }
+
+            // Reutilizar el servicio de mascotas del proyecto.
+            var mascotas = await MascotaService.ObtenerMascotasPorClienteAsync(usuarioId);
+            
+            var tareas = mascotas.Select(async mascota =>
+            {
+                var citasMascota = await CitaService
+                    .ListarPorMascotaAsync(mascota.MascotaId);
+
+                foreach (var cita in citasMascota)
+                {
+                    cita.NombreMascota = mascota.Nombre;
+                }
+
+                return citasMascota;
+            });
+
+            var resultados = await Task.WhenAll(tareas);
+
+            listaCitas = resultados
+                .SelectMany(citas => citas)
+                .OrderByDescending(c => c.FechaHoraInicio)
+                .ToList();
+
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "No se pudieron cargar las citas: " + ex.Message;
+        }
+        finally
+        {
+            cargando = false;
         }
     }
-    catch (Exception ex)
-    {
-        mensajeError = ex.Message;
-    }
-    finally
-    {
-        cargando = false;
-    }
-}
-
 
     private string ObtenerColorEstado(string estado)
     {
