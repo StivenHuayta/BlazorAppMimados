@@ -1,9 +1,7 @@
 ﻿using Mimados.WebApp.Models;
-using Mimados.WebApp.Components.Pages.Cliente;
-using Mimados.WebApp.Models.DTO;
 using System.Buffers.Text;
 
-namespace Mimados.WebApp.Services.SedeServicioService
+namespace Mimados.WebApp.Services
 {
     public class SedeServicioService:ISedeServicioService
 {

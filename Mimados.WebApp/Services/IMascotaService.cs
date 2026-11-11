@@ -1,4 +1,4 @@
-﻿namespace Mimados.WebApp.Services.MascotaServices;
+﻿namespace Mimados.WebApp.Services;
 using Mimados.WebApp.Models;
 
 

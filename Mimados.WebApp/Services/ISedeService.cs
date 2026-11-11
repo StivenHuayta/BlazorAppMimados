@@ -1,6 +1,6 @@
 ﻿using Mimados.WebApp.Models;
 
-namespace Mimados.WebApp.Services.SedeService
+namespace Mimados.WebApp.Services
 {
     public interface ISedeService
 {

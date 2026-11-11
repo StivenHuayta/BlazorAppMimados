@@ -1,7 +1,7 @@
 ﻿
 using Mimados.WebApp.Models;
 
-namespace Mimados.WebApp.Services.CitaServices;
+namespace Mimados.WebApp.Services;
 
 public interface ICitaService
 {

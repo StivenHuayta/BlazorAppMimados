@@ -1,6 +1,6 @@
 ﻿using Mimados.WebApp.Models;
 
-namespace Mimados.WebApp.Services.ServicioService
+namespace Mimados.WebApp.Services
 {
     public interface IServicioService
 {

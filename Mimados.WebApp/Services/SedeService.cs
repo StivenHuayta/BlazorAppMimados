@@ -1,15 +1,13 @@
 ﻿using Mimados.WebApp.Models;
-using Mimados.WebApp.Components.Pages.Cliente;
-using Mimados.WebApp.Services.MascotaServices;
 using System.Text.Json;
 
-namespace Mimados.WebApp.Services.SedeService
+namespace Mimados.WebApp.Services
 {
-    public class SedeServiceImpl: ISedeService
+    public class SedeService: ISedeService
 {
         private readonly HttpClient _http;
 
-        public SedeServiceImpl(HttpClient http)
+        public SedeService(HttpClient http)
         {
             _http = http;
         }
@@ -17,8 +15,8 @@ namespace Mimados.WebApp.Services.SedeService
         /*
         private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/SedeRS";
     private readonly HttpClient _httpClient;//comantario
-    private readonly ILogger<SedeServiceImpl> _logger;
-    public SedeServiceImpl(HttpClient httpClient, ILogger<SedeServiceImpl> logger)
+    private readonly ILogger<SedeService> _logger;
+    public SedeService(HttpClient httpClient, ILogger<SedeService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;

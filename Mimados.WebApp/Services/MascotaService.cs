@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using Mimados.WebApp.Models;
 
 
-namespace Mimados.WebApp.Services.MascotaServices;
+namespace Mimados.WebApp.Services;
 
     public class MascotaService : IMascotaService
 {

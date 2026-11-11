@@ -1,12 +1,12 @@
 ﻿using Mimados.WebApp.Models;
 
-namespace Mimados.WebApp.Services.ServicioService
+namespace Mimados.WebApp.Services
 {
-    public class ServicioServiceImpl: IServicioService
+    public class ServicioService: IServicioService
 {
         private readonly HttpClient _http;
 
-        public ServicioServiceImpl(HttpClient http)
+        public ServicioService(HttpClient http)
         {
             _http = http;
         }

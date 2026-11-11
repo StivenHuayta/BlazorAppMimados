@@ -1,7 +1,6 @@
 ﻿
 using System.Net.Http.Json;
 using Mimados.WebApp.Models;
-using Mimados.WebApp.Services.CitaServices;
 
 namespace Mimados.WebApp.Services;
 
