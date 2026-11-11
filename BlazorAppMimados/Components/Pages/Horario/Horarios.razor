@@ -87,18 +87,28 @@
                                     <td colspan="5" class="text-center py-3">Cargando datos...</td>
                                 </tr>
                             }
+                            else if (!listaEmpleados.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-3">No hay empleados registrados.</td>
+                                </tr>
+                            }
                             else
                             {
                                 @foreach (var emp in listaEmpleados)
                                 {
-                                    if (horariosPorEmpleado.ContainsKey(emp.Id.GetValueOrDefault()))
+                                    @if (horariosPorEmpleado.ContainsKey(emp.Id.GetValueOrDefault()))
                                     {
-                                        var horariosDelEmp = horariosPorEmpleado[emp.Id.GetValueOrDefault()];
-                                        
-                                        foreach (var hor in horariosDelEmp)
+                                        @foreach (var hor in horariosPorEmpleado[emp.Id.GetValueOrDefault()])
                                         {
                                             <tr>
-                                                <td>@(emp.EsAdmin ? "" : "Dr/a.") @emp.Nombres @emp.Apellidos</td>
+                                                <td>
+                                                    @if (!emp.EsAdmin)
+                                                    {
+                                                        <text>Dr/a. </text>
+                                                    }
+                                                    @emp.Nombres @emp.Apellidos
+                                                </td>
                                                 <td>@hor.DiaSemana</td>
                                                 <td>@hor.HoraInicio - @hor.HoraFin</td>
                                                 <td>
@@ -130,8 +140,6 @@
 @code {
     private HorarioRequest nuevoHorario = new HorarioRequest { DiaSemana = "LUNES" };
     private List<EmpleadoRequest>? listaEmpleados;
-    
-    // Diccionario para almacenar los horarios de cada empleado sin saturar la red
     private Dictionary<int, List<HorarioRequest>> horariosPorEmpleado = new Dictionary<int, List<HorarioRequest>>();
     
     private string? mensajeAlerta;
@@ -143,3 +151,91 @@
     }
 
     private async Task CargarDatosGenerales()
+    {
+        try
+        {
+            var respuestaEmp = await EmpleadoService.ListarEmpleadosAsync();
+            if (respuestaEmp != null && respuestaEmp.Success && respuestaEmp.Data != null)
+            {
+                listaEmpleados = respuestaEmp.Data;
+                horariosPorEmpleado.Clear();
+
+                foreach (var emp in listaEmpleados)
+                {
+                    if (emp.Id.HasValue)
+                    {
+                        var respuestaHor = await HorarioService.ListarPorEmpleadoAsync(emp.Id.Value);
+                        if (respuestaHor != null && respuestaHor.Success && respuestaHor.Data != null)
+                        {
+                            horariosPorEmpleado[emp.Id.Value] = respuestaHor.Data;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            mensajeAlerta = "No se pudieron cargar los datos del servidor.";
+        }
+    }
+
+    private async Task GuardarHorario()
+    {
+        if (nuevoHorario.EmpleadoId == 0)
+        {
+            mensajeAlerta = "Debe seleccionar un empleado.";
+            return;
+        }
+
+        cargando = true;
+        mensajeAlerta = null;
+
+        try
+        {
+            var respuesta = await HorarioService.RegistrarHorarioAsync(nuevoHorario);
+            if (respuesta != null && respuesta.Success)
+            {
+                await CargarDatosGenerales();
+                nuevoHorario.HoraInicio = "";
+                nuevoHorario.HoraFin = "";
+                mensajeAlerta = "Horario asignado exitosamente.";
+            }
+            else
+            {
+                mensajeAlerta = respuesta?.Message ?? "Error al registrar el horario.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task EliminarHorario(int? idHorario)
+    {
+        if (idHorario.HasValue)
+        {
+            try
+            {
+                var respuesta = await HorarioService.EliminarHorarioAsync(idHorario.Value);
+                if (respuesta != null && respuesta.Success)
+                {
+                    await CargarDatosGenerales();
+                    mensajeAlerta = "Horario eliminado correctamente.";
+                }
+                else
+                {
+                    mensajeAlerta = respuesta?.Message ?? "No se pudo eliminar el horario.";
+                }
+            }
+            catch (Exception)
+            {
+                mensajeAlerta = "Error al intentar eliminar el horario.";
+            }
+        }
+    }
+}
