@@ -91,6 +91,8 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private List<Mimados_WebApp.Models.Mascota>? listaMascotas;
+        
+    private int idClienteLogueado = 0;
 
         protected override async Task OnInitializedAsync()
     {
@@ -125,15 +127,23 @@
     }
 
 
-private async Task EliminarMascota(int id)
+    private async Task EliminarMascota(int id)
     {
-        
-        bool exito = await MascotaService.EliminarMascotaAsync(id);
-        
-        if (exito)
+        // 1. ACTUALIZACIÓN OPTIMISTA: Borramos la mascota de la vista inmediatamente
+        var mascotaAEliminar = listaMascotas?.FirstOrDefault(m => m.MascotaId == id);
+        if (mascotaAEliminar != null)
         {
-            
-            listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(104);
+            listaMascotas!.Remove(mascotaAEliminar);
+        }
+
+        // 2. Enviamos la orden de eliminación a Java/MySQL en segundo plano
+        bool exito = await MascotaService.EliminarMascotaAsync(id);
+
+        // 3. Manejo de fallos: Si la API diera un error (ej. se cae el internet),
+        // volvemos a descargar la lista real para corregir la pantalla.
+        if (!exito && idClienteLogueado > 0)
+        {
+            listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(idClienteLogueado);
         }
     }
 
