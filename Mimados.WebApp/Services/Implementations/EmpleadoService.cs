@@ -3,13 +3,6 @@ using Mimados.WebApp.Models;
 
 namespace Mimados.WebApp.Services;
 
-public interface IEmpleadoService
-{
-    Task<ApiResponse<object>?> RegistrarEmpleadoAsync(EmpleadoRequest request);
-    Task<ApiResponse<object>?> ModificarEmpleadoAsync(EmpleadoRequest request);
-    Task<ApiResponse<List<EmpleadoRequest>>?> ListarEmpleadosAsync();
-}
-
 public class EmpleadoService : IEmpleadoService
 {
     private readonly HttpClient _http;

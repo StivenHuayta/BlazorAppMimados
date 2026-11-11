@@ -4,14 +4,6 @@ using Mimados.WebApp.Models;
 
 namespace Mimados.WebApp.Services;
 
-public interface IDisponibilidadService
-{
-    Task<List<string>> ConsultarAsync(
-        int empleadoId,
-        DateTime fecha,
-        int duracion);
-}
-
 public class DisponibilidadService : IDisponibilidadService
 {
     private readonly HttpClient _http;
