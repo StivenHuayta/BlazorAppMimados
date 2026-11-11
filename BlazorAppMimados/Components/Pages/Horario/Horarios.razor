@@ -1,6 +1,6 @@
 @page "/horarios"
-@using Mimados_WebApp.Models
-@using Mimados_WebApp.Services
+@using BlazorAppMimados.Models
+@using BlazorAppMimados.Services
 @inject IHorarioLaboralService HorarioService
 @inject IEmpleadoService EmpleadoService
 
@@ -98,7 +98,7 @@
                                         foreach (var hor in horariosDelEmp)
                                         {
                                             <tr>
-                                                <td>@($"{(emp.EsAdmin ? "" : "Dr/a.")} {emp.Nombres} {emp.Apellidos}")</td>
+                                                <td>@(emp.EsAdmin ? "" : "Dr/a.") @emp.Nombres @emp.Apellidos</td>
                                                 <td>@hor.DiaSemana</td>
                                                 <td>@hor.HoraInicio - @hor.HoraFin</td>
                                                 <td>
