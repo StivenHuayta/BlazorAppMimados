@@ -138,7 +138,7 @@
                             }
                     </td>
                     <td >
-                        <button class="btn btn-danger btn-sm" ">
+                        <button class="btn btn-danger btn-sm" @onclick="() => EliminarSedeServicio(ser.IdSedeServicio)">
                              Desactivar
                         </button>
                     </td>
@@ -318,6 +318,11 @@
     {
         Nav.NavigateTo("/sede/administrar");
 
+    }
+     private async Task EliminarSedeServicio(int idSedeServicio)
+    {
+        await SedeServicioService.EliminarSedeServicioAsync(idSedeServicio);
+        listaServiciosDTO = await SedeServicioService.ObtenerServiciosPorSedeAsync(Id);
     }
 
     // Buscador de Servicios
