@@ -33,6 +33,24 @@ builder.Services.AddHttpClient<IHorarioLaboralService, HorarioLaboralService>(cl
     client.BaseAddress = new Uri(apiBaseUrl);
 });
 
+builder.Services.AddHttpClient<ICitaService, CitaService>(client =>
+{
+    client.BaseAddress = new Uri(
+        "http://localhost:8080/MimadosRS/webresources/");
+});
+
+builder.Services.AddHttpClient<IDisponibilidadService, DisponibilidadService>(client =>
+{
+    client.BaseAddress = new Uri(
+        "http://localhost:8080/MimadosRS/webresources/");
+});
+
+builder.Services.AddHttpClient<IVeterinarioService, VeterinarioService>(client =>
+{
+    client.BaseAddress = new Uri(
+        "http://localhost:8080/MimadosRS/webresources/");
+});
+
 // Servicios de la aplicación
 builder.Services.AddSingleton<VeterinariaMockDataService>();
 
