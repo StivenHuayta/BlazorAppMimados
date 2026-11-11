@@ -3,6 +3,9 @@
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Nav
 
+@attribute [Authorize]
+@inject Mimados_WebApp.Services.IUsuarioService UsuarioService
+
 <div class="container mt-4" style="max-width: 800px;">
     
     @* Cabecera con botón destructivo *@
@@ -16,9 +19,17 @@
     @* Alerta de Éxito Simulada *@
     @if (mostrarAlertaGuardado)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Tus datos han sido actualizados correctamente.
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> Tus datos han sido actualizados correctamente.
             <button type="button" class="btn-close" @onclick="() => mostrarAlertaGuardado = false"></button>
+        </div>
+    }
+
+    @if (mostrarAlertaError)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @(mensajeAlerta ?? "Hubo un problema al actualizar tu perfil. Inténtalo más tarde.")
+            <button type="button" class="btn-close" @onclick="() => mostrarAlertaError = false"></button>
         </div>
     }
 
@@ -102,63 +113,92 @@
 
 </div>
 
-@code {
-    private PerfilModel perfilCliente = new();
-    private bool mostrarAlertaGuardado = false;
-    private bool mostrarModal = false;
 
-    // Ciclo de Vida: Simulamos la carga de datos al abrir la pantalla
-    protected override void OnInitialized()
+
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+
+    // Instancia que se unirá al formulario HTML
+    private Mimados_WebApp.Models.UsuarioPerfilModel perfilCliente = new();
+    
+    private bool mostrarAlertaGuardado = false;
+    private bool mostrarAlertaError = false;
+    private bool mostrarModal = false;
+    private int idUsuarioLogueado = 0;
+    private string? mensajeAlerta;
+
+    
+    protected override async Task OnInitializedAsync()
     {
-        perfilCliente = new PerfilModel
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
-            Dni = "72839401",
-            Email = "juan.perez@email.com",
-            Nombres = "Juan Carlos",
-            Apellidos = "Pérez Gómez",
-            Telefono = "987654321",
-            Direccion = "Av. Universitaria 1801, San Miguel",
-            ContactoEmergencia = "999888777"
-        };
+            var claimId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                          ?? user.FindFirst("UsuarioId")?.Value;
+
+            if (int.TryParse(claimId, out idUsuarioLogueado))
+            {
+                // Obtenemos el perfil real desde Java
+                var data = await UsuarioService.ObtenerPerfilAsync(idUsuarioLogueado);
+                if (data != null)
+                {
+                    perfilCliente = data;
+                }
+            }
+        }
     }
 
-    private void GuardarCambios()
+    private async Task GuardarCambios()
     {
-        // El EditForm ya validó todo. Simulamos el éxito:
-        mostrarAlertaGuardado = true;
+        mostrarAlertaGuardado = false;
+        mostrarAlertaError = false;
+
+        // Validamos que exista un ID válido de sesión antes de enviar
+        if (idUsuarioLogueado > 0)
+        {
+            // Opcional: asegurarnos de que el ID del modelo sea el del usuario logueado
+            perfilCliente.Id = idUsuarioLogueado; 
+            
+            bool exito = await UsuarioService.ActualizarPerfilAsync(perfilCliente);
+            if (exito)
+            {
+                mostrarAlertaGuardado = true;
+            }
+            else
+            {
+                mostrarAlertaError = true;
+            }
+        }
     }
 
     // Métodos para controlar el Modal
     private void MostrarModalEliminar() => mostrarModal = true;
     private void OcultarModal() => mostrarModal = false;
 
-    private void ConfirmarEliminacion()
+    private  async Task ConfirmarEliminacion()
     {
-        // Simula la llamada DELETE y manda al Login
-        OcultarModal();
-        Nav.NavigateTo("/login");
+        if (idUsuarioLogueado > 0)
+        {
+            // Descomenta esta línea cuando agregues el método Eliminar en tu IUsuarioService
+             bool exito = await UsuarioService.EliminarCuentaLogicaAsync(idUsuarioLogueado);
+            
+            // Si tiene éxito, cerramos su sesión y lo mandamos al login
+            if (exito) {
+                Nav.NavigateTo("/auth/logout", forceLoad: true); 
+             }
+             else
+            {
+                OcultarModal();
+                mostrarAlertaError = true;
+                mensajeAlerta = "No se pudo eliminar la cuenta. Inténtalo más tarde."; // (Si agregaste el string mensajeAlerta)
+            }
+        }
     }
 
-    // Modelo de datos de la página
-    public class PerfilModel
-    {
-        public string Dni { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Requerido")]
-        public string Nombres { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Requerido")]
-        public string Apellidos { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Requerido")]
-        [StringLength(9, MinimumLength = 9, ErrorMessage = "Debe tener 9 dígitos")]
-        public string Telefono { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Requerido")]
-        public string Direccion { get; set; } = string.Empty;
-
-        [StringLength(9, MinimumLength = 9, ErrorMessage = "Debe tener 9 dígitos")]
-        public string ContactoEmergencia { get; set; } = string.Empty;
-    }
+    
 }

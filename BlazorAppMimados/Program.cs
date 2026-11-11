@@ -40,6 +40,8 @@ builder.Services.AddSingleton<VeterinariaMockDataService>();
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<IMascotaService, MascotaService>();
 
+//PARA SERVICIO DE PERFIL DE USUARIO
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 //servicios de sede
 //builder.Services.AddScoped<ISedeService, SedeServiceImpl>();
