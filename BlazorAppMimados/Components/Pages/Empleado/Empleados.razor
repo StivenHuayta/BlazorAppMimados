@@ -1,5 +1,8 @@
-﻿@page "/empleados"
+@page "/empleados"
+@using BlazorAppMimados.Models
+@using BlazorAppMimados.Services
 @inject NavigationManager Navigation
+@inject IEmpleadoService EmpleadoService
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="m-0 text-dark fw-bold">Gestión de Empleados</h3>
@@ -7,6 +10,11 @@
         + Registrar Nuevo Empleado
     </button>
 </div>
+
+@if (!string.IsNullOrEmpty(mensajeError))
+{
+    <div class="alert alert-danger mb-3">@mensajeError</div>
+}
 
 <div class="card shadow-sm border-0">
     <div class="card-header bg-primary text-white">
@@ -27,30 +35,45 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>73829102</td>
-                        <td>Carlos Mendoza Rios</td>
-                        <td>987654321</td>
-                        <td>cmendoza@mimados.com</td>
-                        <td>Veterinario</td>
-                        <td><span class="badge bg-success">Activo</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning text-dark fw-bold">Editar</button>
-                            <button class="btn btn-sm btn-danger fw-bold ms-1">Eliminar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>45612378</td>
-                        <td>Ana Torres Peralta</td>
-                        <td>912345678</td>
-                        <td>atorres@mimados.com</td>
-                        <td>Administrador</td>
-                        <td><span class="badge bg-success">Activo</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning text-dark fw-bold">Editar</button>
-                            <button class="btn btn-sm btn-danger fw-bold ms-1">Eliminar</button>
-                        </td>
-                    </tr>
+                    @if (listaEmpleados == null)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-3">Cargando empleados...</td>
+                        </tr>
+                    }
+                    else if (!listaEmpleados.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-3">No hay empleados registrados.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var emp in listaEmpleados)
+                        {
+                            <tr>
+                                <td>@emp.Dni</td>
+                                <td>@($"{emp.Nombres} {emp.Apellidos}")</td>
+                                <td>@emp.Telefono</td>
+                                <td>@emp.Email</td>
+                                <td>@(emp.EsAdmin ? "Administrador" : "Veterinario")</td>
+                                <td>
+                                    @if (emp.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-warning text-dark fw-bold">Editar</button>
+                                    <button class="btn btn-sm btn-danger fw-bold ms-1">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
@@ -58,6 +81,29 @@
 </div>
 
 @code {
+    private List<EmpleadoRequest>? listaEmpleados;
+    private string? mensajeError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var respuesta = await EmpleadoService.ListarEmpleadosAsync();
+            if (respuesta != null && respuesta.Success)
+            {
+                listaEmpleados = respuesta.Data;
+            }
+            else
+            {
+                mensajeError = respuesta?.Message ?? "Error al cargar la lista.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "No se pudo conectar con el servidor Java. Verifica que esté en ejecución.";
+        }
+    }
+
     private void IrARegistro()
     {
         Navigation.NavigateTo("/empleados/nuevo");

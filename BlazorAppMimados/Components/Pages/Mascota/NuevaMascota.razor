@@ -3,7 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @* Inyectamos el NavigationManager para poder regresar a la grilla[cite: 5] *@
 @inject NavigationManager Nav
-
+@attribute [Authorize]
 
 @* INICIO CAMBIOS: Importar modelo e inyectar el servicio *@
 @using Mimados_WebApp.Models
@@ -107,6 +107,10 @@
 </div>
 
 @code {
+
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     // Inicializamos con la fecha de hoy por defecto
     private MascotaRegistroModel nuevaMascota = new MascotaRegistroModel { FechaNacimiento = DateTime.Today };
 
@@ -117,6 +121,24 @@
     private async Task GuardarMascota()
     {
         mensajeError = null;
+
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+        int idClienteLogueado = 0;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var claimId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                          ?? user.FindFirst("UsuarioId")?.Value;
+                          
+            int.TryParse(claimId, out idClienteLogueado);
+        }
+
+        if (idClienteLogueado == 0)
+        {
+            mensajeError = "No se pudo identificar tu sesión. Por favor, vuelve a iniciar sesión.";
+            return;
+        }
 
         // Construimos la mascota que enviaremos al backend
         var mascotaAGuardar = new Mascota
@@ -129,7 +151,7 @@
             PesoReferencial = nuevaMascota.PesoReferencial,
             Activo = true,
           //ID FORZADO
-            ClienteId = 104 
+            ClienteId = idClienteLogueado
         };
 
         // Hacemos el POST usando nuestro servicio

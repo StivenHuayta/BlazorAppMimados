@@ -2,6 +2,7 @@
 @using Mimados_WebApp.Models
 @rendermode InteractiveServer
 @inject NavigationManager Nav
+@inject IServicioService ServicioService
 @using System.ComponentModel.DataAnnotations
 
 <div class="container-fluid mt-4">
@@ -50,8 +51,9 @@
             
 
             <div class="text-end">
-                <button type="submit" class="btn btn-success px-4 fw-bold" @onClick="GuardarSede">
+                <button type="submit" class="btn btn-success px-4 fw-bold" >
                     <i class="bi bi-save"></i> Guardar Servicio
+
                 </button>
             </div>
         </EditForm>
@@ -62,7 +64,10 @@
     // Inicializamos con la fecha de hoy por defecto
     private ServicioRegistroModel nuevoServicio = new ServicioRegistroModel ();
 
-    private void GuardarServicio()
+    private bool cargando = false;
+    private string? mensajeError;
+
+    /*private void GuardarServicio()
     {
         // Aquí simulamos que se guarda en la Base de Datos.
         // Más adelante, aquí usarás HttpClient para hacer el POST al servidor.
@@ -70,6 +75,43 @@
         
         // Redirigimos al usuario de regreso a su grilla usando NavigationManager[cite: 5]
         Nav.NavigateTo("/servicio/administrar");
+    }*/
+
+
+    private async Task GuardarServicio()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
+        {
+            Servicio se = new Servicio();
+            se.Nombre = nuevoServicio.Nombre;
+            se.Descripcion = nuevoServicio.Descripcion;
+            se.PrecioReferencial = (double)nuevoServicio.PrecioReferencial;
+            se.DuracionMinutos = nuevoServicio.DuracionMinutos;
+
+
+            bool exito = await ServicioService.CrearServicioAsync(se);
+
+            if (exito)
+            {
+                // Si se registró con éxito, redirigimos al usuario a la lista de sedes
+                Nav.NavigateTo("/servicio/administrar");
+            }
+            else
+            {
+                mensajeError = "El servidor no pudo registrar el servicio. Verifica los datos.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Ocurrió un error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
     }
 
     private void Volver()

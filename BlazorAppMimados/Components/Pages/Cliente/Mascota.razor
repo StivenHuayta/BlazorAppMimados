@@ -1,7 +1,7 @@
 ﻿@page "/cliente/mascotas"
 @rendermode InteractiveServer
 @inject NavigationManager Nav
-
+@attribute [Authorize]
 
 @using Mimados_WebApp.Models
 @inject Mimados_WebApp.Services.MascotaServices.IMascotaService MascotaService
@@ -62,8 +62,8 @@
                             <p class="mb-3"><strong>Peso ref:</strong> @mascota.PesoReferencial kg</p>
                             
                             <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary">
-                                    Ver Historial Clínico
+                                <button class="btn btn-info btn-sm" @onclick="() => IrAHistorial(mascota.MascotaId)">
+                                    <i class="bi bi-journal-medical"></i> Ver Historial
                                 </button>
                             </div>
                         </div>
@@ -88,13 +88,40 @@
 
 @code{
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private List<Mimados_WebApp.Models.Mascota>? listaMascotas;
 
         protected override async Task OnInitializedAsync()
     {
-        // Por ahora, forzamos tu ID de usuario de prueba (104) para ver datos reales.
-        // Más adelante, esto se cambiará para leer el ID del usuario que haya iniciado sesión.
-        listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(104);
+
+        var authState = await AuthenticationStateTask;
+        var user = authState.User;
+
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            // 3. Buscamos el claim que contiene el ID.
+            // Usualmente .NET lo guarda como NameIdentifier o lo puedes haber llamado "UsuarioId"
+            var claimId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                          ?? user.FindFirst("UsuarioId")?.Value;
+
+            if (int.TryParse(claimId, out int idClienteLogueado))
+            {
+                // 4. Ejecutamos tu servicio con el ID dinámico
+                listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(idClienteLogueado);
+            }
+            else
+            {
+                // Si por alguna razón el ID del claim no es numérico, devolvemos lista vacía
+                listaMascotas = new List<Mimados_WebApp.Models.Mascota>();
+            }
+        }
+        else
+        {
+            // Opcional: Si no está logueado, podrías usar Nav.NavigateTo("/login")
+            listaMascotas = new List<Mimados_WebApp.Models.Mascota>();
+        }
     }
 
 
@@ -119,6 +146,12 @@ public void IrANuevaMascota()
     {
         Nav.NavigateTo($"/cliente/mascotas/editar/{id}");
 
+    }
+
+
+    private void IrAHistorial(int id)
+    {
+        Nav.NavigateTo($"/cliente/mascotas/{id}/historial");
     }
 
 

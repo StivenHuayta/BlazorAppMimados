@@ -3,6 +3,8 @@
 @rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Nav
+@inject IServicioService ServicioService
+
 
 <div class="container-fluid mt-4">
     
@@ -22,7 +24,7 @@
         <div class="card p-4 shadow-sm border-0 bg-light">
             
             @* Reutilizamos el EditForm con validación nativa (Diapositiva 39) *@
-            <EditForm Model="@nuevoServicio" OnValidSubmit="ActualizarMascota">
+            <EditForm Model="@nuevoServicio" OnValidSubmit="ActualizarServicio">
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
@@ -83,50 +85,74 @@
 
     private ServicioEditar nuevoServicio = new ServicioEditar ();
 
+    private bool cargando = false;
+    private string? mensajeError;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Simulamos buscar la mascota en la Base de Datos usando el Id que llegó en la URL
-        Console.WriteLine($"Buscando en BD la mascota con ID: {Id}");
+        try
+        {
+            // 1. Consultamos la sede existente usando el método que creaste
+            var servicioBD = await ServicioService.ObtenerServicioPorIdAsync(Id);
 
-        // Simulación de carga de datos para rellenar el formulario
-        if (Id == 1)
-        {
-             nuevoServicio = new ServicioEditar
-                                                                {
-                                            Nombre = "Baño y Corte",
-                                                Descripcion = "Baño completo con champú medicado, secado y corte de pelo.",
-                                            PrecioReferencial = 50.0m, // La 'm' al final indica que es un decimal en C#
-                                            DuracionMinutos = 60,
-                                            Activo = true
-                                            };
+            if (servicioBD != null)
+            {
+                // 2. Pasamos los datos de la base de datos al modelo del formulario
+                nuevoServicio = new ServicioEditar
+                {
+                    Nombre = servicioBD.Nombre,
+                    Descripcion = servicioBD.Descripcion,
+                    PrecioReferencial = (decimal)servicioBD.PrecioReferencial,
+                    DuracionMinutos = servicioBD.DuracionMinutos,
+                    Activo = servicioBD.Activo
+                };
+            }
+            else
+            {
+                mensajeError = "No se encontró el servicio solicitado.";
+            }
         }
-        else if (Id == 2)
+        catch (Exception ex)
         {
-             nuevoServicio = new ServicioEditar
-                                                            {
-                                            Nombre = "Consulta Veterinaria General",
-                                            Descripcion = "Evaluación clínica integral del estado de salud de la mascota.",
-                                            PrecioReferencial = 70.0m,
-                                            DuracionMinutos = 30,
-                                            Activo = true
-                                            };
+            mensajeError = $"Error al cargar el servicio: {ex.Message}";
         }
-        else if (Id == 3)
+        finally
         {
-             nuevoServicio = new ServicioEditar
-                                            {
-                                                Nombre = "Consulta Veterinaria General",
-                                                Descripcion = "Evaluación clínica integral del estado de salud de la mascota.",
-                                                PrecioReferencial = 70.0m,
-                                                DuracionMinutos = 30,
-                                                Activo = true
-                                            };
+            cargando = false;
         }
-        else
+    }
+
+    private async Task ActualizarServicio()
+    {
+        cargando = true;
+        mensajeError = null;
+
+        try
         {
-            // Si inventan un ID que no existe, cargamos un modelo vacío o podemos redirigir a un error
-            nuevoServicio = new ServicioEditar ();
+            Servicio servicio = new Servicio();
+            servicio.Id = Id;
+            servicio.Nombre = nuevoServicio.Nombre;
+            servicio.Descripcion = nuevoServicio.Descripcion;
+            servicio.PrecioReferencial = (double)nuevoServicio.PrecioReferencial;
+            servicio.DuracionMinutos = nuevoServicio.DuracionMinutos;
+            servicio.Activo = nuevoServicio.Activo;
+
+            await ServicioService.ActualizarServicioAsync(servicio);
+            Console.WriteLine($"Actualizando datos del servicio ID {Id}: {nuevoServicio?.Nombre}");
+
+
+            // Si todo sale bien y no lanza excepción, redirige a la lista de administración
+            Nav.NavigateTo("/servicio/administrar");
+        }
+        catch (Exception ex)
+        {
+            // Atrapa cualquier error (incluyendo el mensaje que mande el ApiResponse del backend)
+            mensajeError = ex.Message;
+            Console.WriteLine($"Error capturado: {mensajeError}");
+        }
+        finally
+        {
+            cargando = false;
         }
     }
 
@@ -138,7 +164,6 @@
     private void ActualizarMascota()
     {
         // Aquí usarías HttpClient (PUT) para actualizar en BD
-        Console.WriteLine($"Actualizando datos del servicio ID {Id}: {nuevoServicio?.Nombre}");
         
         // Regresamos a la grilla principal
         Nav.NavigateTo("/servicio/administrar");
