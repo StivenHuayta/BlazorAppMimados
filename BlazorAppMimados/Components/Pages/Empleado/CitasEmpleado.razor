@@ -103,12 +103,7 @@
 </div>
 
 @code {
-    // Las filas de ejemplo pueden ampliarse aquí sin cambiar el mecanismo del filtro.
-    private readonly List<CitaListado> citas = new()
-    {
-        new(1, "C-001", "Juan Pérez", "Firulais", "Consulta general", new DateTime(2026, 11, 4, 10, 0, 0), "Confirmada"),
-        new(2, "C-002", "Juan Pérez", "Michi", "Vacunación", new DateTime(2026, 11, 7, 15, 30, 0), "Pendiente")
-    };
+    private readonly List<CitaListado> citas = new();
 
     private List<CitaListado> citasFiltradas = new();
     private string textoBuscar = "";
