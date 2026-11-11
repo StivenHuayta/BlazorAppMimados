@@ -48,11 +48,12 @@
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="form-label fw-bold">Hora Inicio</label>
-                        <input type="time" class="form-control" @bind="nuevoHorario.HoraInicio" />
+                        <!-- Usamos @bind a variables TimeOnly locales -->
+                        <input type="time" class="form-control" @bind="horaInicioLocal" />
                     </div>
                     <div class="col-6 mb-3">
                         <label class="form-label fw-bold">Hora Fin</label>
-                        <input type="time" class="form-control" @bind="nuevoHorario.HoraFin" />
+                        <input type="time" class="form-control" @bind="horaFinLocal" />
                     </div>
                 </div>
                 <button class="btn btn-success w-100 fw-bold mt-2" @onclick="GuardarHorario" disabled="@cargando">
@@ -139,6 +140,11 @@
 
 @code {
     private HorarioRequest nuevoHorario = new HorarioRequest { DiaSemana = "LUNES" };
+    
+    // Variables locales TimeOnly para el binding del HTML
+    private TimeOnly horaInicioLocal = new TimeOnly(8, 0);
+    private TimeOnly horaFinLocal = new TimeOnly(14, 0);
+
     private List<EmpleadoRequest>? listaEmpleados;
     private Dictionary<int, List<HorarioRequest>> horariosPorEmpleado = new Dictionary<int, List<HorarioRequest>>();
     
@@ -190,14 +196,19 @@
         cargando = true;
         mensajeAlerta = null;
 
+        // Convertimos las variables TimeOnly a string con formato "HH:mm:ss" antes de enviar
+        nuevoHorario.HoraInicio = horaInicioLocal.ToString("HH:mm:ss");
+        nuevoHorario.HoraFin = horaFinLocal.ToString("HH:mm:ss");
+
         try
         {
             var respuesta = await HorarioService.RegistrarHorarioAsync(nuevoHorario);
             if (respuesta != null && respuesta.Success)
             {
                 await CargarDatosGenerales();
-                nuevoHorario.HoraInicio = "";
-                nuevoHorario.HoraFin = "";
+                // Reiniciamos valores visuales
+                horaInicioLocal = new TimeOnly(8, 0);
+                horaFinLocal = new TimeOnly(14, 0);
                 mensajeAlerta = "Horario asignado exitosamente.";
             }
             else
