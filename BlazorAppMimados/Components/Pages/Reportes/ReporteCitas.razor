@@ -1,4 +1,4 @@
-﻿@page "/reportes/citas"
+@page "/reportes/citas"
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="m-0 text-dark fw-bold">Reporte de Citas</h3>
@@ -55,35 +55,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>#10024</td>
-                        <td>12/10/2026 09:30</td>
-                        <td>Sede Central</td>
-                        <td>Firulais (Mestizo)</td>
-                        <td>Dr. Carlos Mendoza</td>
-                        <td>Control general</td>
-                        <td><span class="badge bg-success">Completada</span></td>
-                    </tr>
-                    <tr>
-                        <td>#10025</td>
-                        <td>12/10/2026 11:00</td>
-                        <td>Sede Central</td>
-                        <td>Michi (Siamés)</td>
-                        <td>Dra. Elena Rojas</td>
-                        <td>Vacunación</td>
-                        <td><span class="badge bg-warning text-dark">Programada</span></td>
-                    </tr>
-                    <tr>
-                        <td>#10026</td>
-                        <td>14/10/2026 15:00</td>
-                        <td>Sede Norte</td>
-                        <td>Max (Pug)</td>
-                        <td>Dr. Carlos Mendoza</td>
-                        <td>Consulta médica</td>
-                        <td><span class="badge bg-danger">Cancelada</span></td>
-                    </tr>
+                    @if (citas.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No se encontraron citas con los filtros seleccionados.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var c in citas)
+                        {
+                            <tr>
+                                <td>@c.Id</td>
+                                <td>@c.FechaHora</td>
+                                <td>@c.Sede</td>
+                                <td>@c.Mascota</td>
+                                <td>@c.Veterinario</td>
+                                <td>@c.Motivo</td>
+                                <td><span class="badge @c.EstadoClase">@c.Estado</span></td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@code {
+    private record CitaReporteItem(string Id, string FechaHora, string Sede, string Mascota, string Veterinario, string Motivo, string Estado, string EstadoClase);
+    private List<CitaReporteItem> citas = new();
+}

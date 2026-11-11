@@ -35,41 +35,30 @@
                     <label class="form-label fw-bold" for="emp-form-cliente">Cliente:</label>
                     <select class="form-select" id="emp-form-cliente" @bind="cliente">
                         <option value="">-- Seleccione --</option>
-                        <option value="Juan Pérez">Juan Pérez</option>
-                        <option value="María López">María López</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold" for="emp-form-mascota">Mascota:</label>
                     <select class="form-select" id="emp-form-mascota" @bind="mascota">
                         <option value="">-- Seleccione --</option>
-                        <option value="Firulais">Firulais</option>
-                        <option value="Michi">Michi</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold" for="emp-form-sede">Sede:</label>
                     <select class="form-select" id="emp-form-sede" @bind="sede">
                         <option value="">-- Seleccione --</option>
-                        <option value="San Miguel">San Miguel</option>
-                        <option value="Surco">Surco</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold" for="emp-form-servicio">Servicio:</label>
                     <select class="form-select" id="emp-form-servicio" @bind="servicio">
                         <option value="">-- Seleccione --</option>
-                        <option value="Consulta general">Consulta general</option>
-                        <option value="Vacunación">Vacunación</option>
-                        <option value="Control veterinario">Control veterinario</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold" for="emp-form-medico">Veterinario:</label>
                     <select class="form-select" id="emp-form-medico" @bind="veterinario">
                         <option value="">-- Seleccione --</option>
-                        <option value="Dra. Ana Torres">Dra. Ana Torres</option>
-                        <option value="Dr. Luis Ramírez">Dr. Luis Ramírez</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -114,7 +103,7 @@
     [Parameter] public int? Id { get; set; }
 
     private bool EsEdicion => Id.HasValue;
-    private bool CitaNoEncontrada => EsEdicion && Id != 1 && Id != 2;
+    private bool CitaNoEncontrada => false;
     private string Codigo => $"C-{Id.GetValueOrDefault():000}";
     private bool citaGuardada;
 
@@ -130,8 +119,6 @@
 
     protected override void OnParametersSet()
     {
-        // Mantiene el mismo formulario para registrar y modificar,
-        // pero precarga los datos cuando se abre una cita existente.
         citaGuardada = false;
         cliente = "";
         mascota = "";
@@ -142,29 +129,6 @@
         fecha = null;
         hora = null;
         observaciones = "";
-
-        if (Id == 1)
-        {
-            cliente = "Juan Pérez";
-            mascota = "Firulais";
-            sede = "San Miguel";
-            servicio = "Consulta general";
-            veterinario = "Dra. Ana Torres";
-            estado = "Confirmada";
-            fecha = new DateTime(2026, 11, 4);
-            hora = new TimeOnly(10, 0);
-        }
-        else if (Id == 2)
-        {
-            cliente = "Juan Pérez";
-            mascota = "Michi";
-            sede = "Surco";
-            servicio = "Vacunación";
-            veterinario = "Dr. Luis Ramírez";
-            estado = "Pendiente";
-            fecha = new DateTime(2026, 11, 7);
-            hora = new TimeOnly(15, 30);
-        }
     }
 
     private void GuardarCita() => citaGuardada = true;

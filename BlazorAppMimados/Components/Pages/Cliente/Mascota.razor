@@ -91,6 +91,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
     private List<Mimados_WebApp.Models.Mascota>? listaMascotas;
+    private int idClienteLogueado = 0; // Variable para almacenar el ID del cliente logueado
 
         protected override async Task OnInitializedAsync()
     {
@@ -133,7 +134,7 @@ private async Task EliminarMascota(int id)
         if (exito)
         {
             
-            listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(104);
+            listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(idClienteLogueado);
         }
     }
 

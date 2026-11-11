@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Folder Include="Services\Interfaces\" />
-    <Folder Include="Services\Implementaciones\" />
     <Folder Include="Services\NewFolder\" />
   </ItemGroup>
 

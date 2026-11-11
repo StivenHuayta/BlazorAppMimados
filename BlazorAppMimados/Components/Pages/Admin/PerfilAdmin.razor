@@ -17,21 +17,21 @@
                         <form>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">DNI</label>
-                                <input type="text" class="form-control bg-light" value="45612378" disabled />
+                                <input type="text" class="form-control bg-light" value="@(context.User.FindFirst("Dni")?.Value ?? "")" disabled />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Nombres y Apellidos</label>
-                                <input type="text" class="form-control" value="Ana Torres Peralta" />
+                                <input type="text" class="form-control" value="@(context.User.FindFirst("DisplayName")?.Value ?? "")" />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Correo Electrónico</label>
-                                <input type="email" class="form-control" value="atorres@mimados.com" />
+                                <input type="email" class="form-control" value="@(context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? context.User.Identity?.Name ?? "")" />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Rol</label>
-                                <input type="text" class="form-control bg-light" value="Administrador Principal" disabled />
+                                <input type="text" class="form-control bg-light" value="@(context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Administrador")" disabled />
                             </div>
-                            <button class="btn btn-success fw-bold w-100">Actualizar Datos</button>
+                            <button type="button" class="btn btn-success fw-bold w-100">Actualizar Datos</button>
                         </form>
                     </div>
                 </div>
@@ -48,4 +48,3 @@
         </a>
     </NotAuthorized>
 </AuthorizeView>
-
