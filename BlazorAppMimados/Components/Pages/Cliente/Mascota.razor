@@ -126,12 +126,21 @@
     }
 
 
-private async Task EliminarMascota(int id)
+    private async Task EliminarMascota(int id)
     {
-        
+        // 1. ACTUALIZACIÓN OPTIMISTA: Borramos la mascota de la vista inmediatamente
+        var mascotaAEliminar = listaMascotas?.FirstOrDefault(m => m.MascotaId == id);
+        if (mascotaAEliminar != null)
+        {
+            listaMascotas!.Remove(mascotaAEliminar);
+        }
+
+        // 2. Enviamos la orden de eliminación a Java/MySQL en segundo plano
         bool exito = await MascotaService.EliminarMascotaAsync(id);
-        
-        if (exito)
+
+        // 3. Manejo de fallos: Si la API diera un error (ej. se cae el internet),
+        // volvemos a descargar la lista real para corregir la pantalla.
+        if (!exito && idClienteLogueado > 0)
         {
             
             listaMascotas = await MascotaService.ObtenerMascotasPorClienteAsync(idClienteLogueado);
