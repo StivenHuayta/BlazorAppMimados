@@ -8,7 +8,7 @@ namespace Mimados.WebApp.Services;
 
     public class MascotaService : IMascotaService
 {
-    private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/mascotas";
+    private const string PATH = "mascotas";
     private readonly HttpClient _httpClient;
     private readonly ILogger<MascotaService> _logger;
 
@@ -22,7 +22,7 @@ namespace Mimados.WebApp.Services;
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{BASE_URL}/{mascotaId}");
+            var response = await _httpClient.GetAsync($"{PATH}/{mascotaId}");
             if (!response.IsSuccessStatusCode) return null;
 
             var jsonString = await response.Content.ReadAsStringAsync();
@@ -57,7 +57,7 @@ namespace Mimados.WebApp.Services;
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{BASE_URL}/cliente/{clienteId}");
+            var response = await _httpClient.GetAsync($"{PATH}/cliente/{clienteId}");
             if (!response.IsSuccessStatusCode) return new List<Mascota>();
 
             var jsonString = await response.Content.ReadAsStringAsync();
@@ -106,7 +106,7 @@ namespace Mimados.WebApp.Services;
             };
 
             var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(BASE_URL, content);
+            var response = await _httpClient.PostAsync(PATH, content);
 
             return response.IsSuccessStatusCode;
         }
@@ -136,7 +136,7 @@ namespace Mimados.WebApp.Services;
             };
 
             var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(BASE_URL, content);
+            var response = await _httpClient.PutAsync(PATH, content);
 
             return response.IsSuccessStatusCode;
         }
@@ -152,7 +152,7 @@ namespace Mimados.WebApp.Services;
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"{BASE_URL}/{mascotaId}");
+            var response = await _httpClient.DeleteAsync($"{PATH}/{mascotaId}");
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -169,7 +169,7 @@ namespace Mimados.WebApp.Services;
         {
             // Ajusta la URL si tu endpoint base es diferente
             
-            var url = $"{BASE_URL}/historial/{mascotaId}";
+            var url = $"{PATH}/historial/{mascotaId}";
 
             var historial = await _httpClient.GetFromJsonAsync<List<RegistroMedico>>(url);
             return historial ?? new List<RegistroMedico>();

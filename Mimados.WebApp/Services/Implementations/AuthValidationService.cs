@@ -6,16 +6,11 @@ using Mimados.WebApp.Models;
 namespace Mimados.WebApp.Services;
 
 /// <summary>
-/// Servicio de autenticación y registro que consume directamente el servicio REST del backend Java (mimados-rs).
-/// Implementado según el documento de referencia "Creación de Servicios Web RESTFul con Jakarta REST" (Sección 9),
-/// definiendo la URL base directamente mediante una constante sin requerir appsettings.json.
+/// Servicio de autenticación y registro que consume el servicio REST del backend Java (UsuarioRS).
 /// </summary>
 public class AuthValidationService : IAuthValidationService
 {
-    // URL base según la sección 9.2 y 9.3 de la guía de Jakarta REST
-    // http://localhost:8080/[ContextPath]/[PrefijoRutaDeLosServicios]/[NombreServicio]
-    private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/UsuarioRS";
-    private const string FALLBACK_URL = "http://localhost:8080/mimados-rs-1.0-SNAPSHOT/webresources/UsuarioRS";
+    private const string PATH = "UsuarioRS";
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<AuthValidationService> _logger;
@@ -44,9 +39,8 @@ public class AuthValidationService : IAuthValidationService
 
         var endpoints = new[]
         {
-            $"{BASE_URL}/autenticar",
-            $"{FALLBACK_URL}/autenticar",
-            $"{BASE_URL}/login"
+            $"{PATH}/autenticar",
+            $"{PATH}/login"
         };
 
         HttpResponseMessage? response = null;
@@ -83,7 +77,7 @@ public class AuthValidationService : IAuthValidationService
             return new AuthValidationResult
             {
                 Exito = false,
-                MensajeError = $"No se pudo conectar con el servicio Java REST en {BASE_URL}. " +
+                MensajeError = $"No se pudo conectar con el servicio Java REST ({PATH}). " +
                                $"Asegúrese de que el backend Java esté desplegado y corriendo en GlassFish (puerto 8080). " +
                                $"(Detalle: {lastError ?? "Servicio no disponible"})"
             };
@@ -184,8 +178,7 @@ public class AuthValidationService : IAuthValidationService
 
         var endpoints = new[]
         {
-            $"{BASE_URL}/registrarCliente",
-            $"{FALLBACK_URL}/registrarCliente"
+            $"{PATH}/registrarCliente"
         };
 
         HttpResponseMessage? response = null;

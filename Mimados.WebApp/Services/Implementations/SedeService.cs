@@ -12,16 +12,6 @@ namespace Mimados.WebApp.Services
             _http = http;
         }
 
-        /*
-        private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/SedeRS";
-    private readonly HttpClient _httpClient;//comantario
-    private readonly ILogger<SedeService> _logger;
-    public SedeService(HttpClient httpClient, ILogger<SedeService> logger)
-    {
-        _httpClient = httpClient;
-        _logger = logger;
-    }
-    */
         public async Task<Sede?> ObtenerSedePorIdAsync(int id)
         {
             var respuesta = await _http.GetFromJsonAsync<ApiResponse<Sede>>(

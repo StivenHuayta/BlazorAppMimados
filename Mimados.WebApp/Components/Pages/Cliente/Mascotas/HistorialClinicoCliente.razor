@@ -6,6 +6,7 @@
 
 @* INICIO CAMBIOS: Inyectar el servicio de mascotas *@
 @inject IMascotaService MascotaService
+@inject IConfiguration Config
 
 
 <div class="container mt-4" style="max-width: 900px;">
@@ -101,13 +102,14 @@
 
     private void ImprimirReporte()
     {
-        // Aquí se simula la generación del reporte exigido por el RF-14
+        // Generación del reporte exigido por el RF-14
         mostrarAlertaDescarga = true;
         Console.WriteLine($"Generando reporte PDF para la mascota ID: {Id}");
 
-        string urlPdf = $"http://localhost:8080/MimadosRS/webresources/mascotas/historial/{Id}/pdf";
+        var baseUrl = Config["ApiBaseUrl"] ?? "http://localhost:8080/MimadosRS/webresources/";
+        if (!baseUrl.EndsWith("/")) baseUrl += "/";
+        string urlPdf = $"{baseUrl}mascotas/historial/{Id}/pdf";
         Nav.NavigateTo(urlPdf, forceLoad: true);
-
     }
 
     

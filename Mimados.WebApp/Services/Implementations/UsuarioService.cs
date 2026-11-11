@@ -7,8 +7,7 @@ namespace Mimados.WebApp.Services
     {
         private readonly HttpClient _httpClient;
 
-        // Reutilizamos el Context Root que funciono en Postman
-        private const string BASE_URL = "http://localhost:8080/MimadosRS/webresources/PerfilRS";
+        private const string PATH = "PerfilRS";
 
         public UsuarioService(HttpClient httpClient)
         {
@@ -19,7 +18,7 @@ namespace Mimados.WebApp.Services
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<UsuarioPerfilModel>($"{BASE_URL}/{idUsuario}");
+                return await _httpClient.GetFromJsonAsync<UsuarioPerfilModel>($"{PATH}/{idUsuario}");
             }
             catch (Exception ex)
             {
@@ -32,7 +31,7 @@ namespace Mimados.WebApp.Services
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"{BASE_URL}/actualizar", perfil);
+                var response = await _httpClient.PutAsJsonAsync($"{PATH}/actualizar", perfil);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -47,8 +46,7 @@ namespace Mimados.WebApp.Services
         {
             try
             {
-                // Hace la llamada HTTP DELETE a: http://localhost:8080/MimadosRS/webresources/PerfilRS/eliminar/{id}
-                var response = await _httpClient.DeleteAsync($"{BASE_URL}/eliminar/{idUsuario}");
+                var response = await _httpClient.DeleteAsync($"{PATH}/eliminar/{idUsuario}");
 
                 return response.IsSuccessStatusCode;
             }

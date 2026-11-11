@@ -10,66 +10,34 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddCookieAuth();
-builder.Services.AddHttpClient<IAuthValidationService, AuthValidationService>();
 
-// URL Base del Backend Java REST
-//string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/mimados-rs/rs/";
+// URL Base del Backend Java REST leída de appsettings.json o variable de entorno
 string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080/MimadosRS/webresources/";
+if (!apiBaseUrl.EndsWith("/"))
+{
+    apiBaseUrl += "/";
+}
 
-// Registro de Servicios REST HTTP para Empleados y Horarios
-builder.Services.AddHttpClient<IEmpleadoService, EmpleadoService>(client =>
+void ConfigureClient(HttpClient client)
 {
     client.BaseAddress = new Uri(apiBaseUrl);
-});
+}
 
-builder.Services.AddHttpClient<IHorarioLaboralService, HorarioLaboralService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-});
+// Registro unificado de clientes HTTP consumiendo de la configuración
+builder.Services.AddHttpClient<IAuthValidationService, AuthValidationService>(ConfigureClient);
+builder.Services.AddHttpClient<IEmpleadoService, EmpleadoService>(ConfigureClient);
+builder.Services.AddHttpClient<IHorarioLaboralService, HorarioLaboralService>(ConfigureClient);
+builder.Services.AddHttpClient<ICitaService, CitaService>(ConfigureClient);
+builder.Services.AddHttpClient<IDisponibilidadService, DisponibilidadService>(ConfigureClient);
+builder.Services.AddHttpClient<IVeterinarioService, VeterinarioService>(ConfigureClient);
+builder.Services.AddHttpClient<IMascotaService, MascotaService>(ConfigureClient);
+builder.Services.AddHttpClient<IUsuarioService, UsuarioService>(ConfigureClient);
+builder.Services.AddHttpClient<ISedeService, SedeService>(ConfigureClient);
+builder.Services.AddHttpClient<IServicioService, ServicioService>(ConfigureClient);
+builder.Services.AddHttpClient<ISedeServicioService, SedeServicioService>(ConfigureClient);
 
-builder.Services.AddHttpClient<ICitaService, CitaService>(client =>
-{
-    client.BaseAddress = new Uri(
-        "http://localhost:8080/MimadosRS/webresources/");
-});
-
-builder.Services.AddHttpClient<IDisponibilidadService, DisponibilidadService>(client =>
-{
-    client.BaseAddress = new Uri(
-        "http://localhost:8080/MimadosRS/webresources/");
-});
-
-builder.Services.AddHttpClient<IVeterinarioService, VeterinarioService>(client =>
-{
-    client.BaseAddress = new Uri(
-        "http://localhost:8080/MimadosRS/webresources/");
-});
-
-// Servicios de la aplicación
+// Servicios de la aplicación en memoria / estado
 builder.Services.AddSingleton<VeterinariaMockDataService>();
-
-//PARA SERVICIO DE MASCOTA
-builder.Services.AddScoped<HttpClient>();
-builder.Services.AddScoped<IMascotaService, MascotaService>();
-
-//PARA SERVICIO DE PERFIL DE USUARIO
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-
-//servicios de sede
-//builder.Services.AddScoped<ISedeService, SedeService>();
-builder.Services.AddHttpClient<ISedeService, SedeService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-});
-
-builder.Services.AddHttpClient<IServicioService, ServicioService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-});
-builder.Services.AddHttpClient<ISedeServicioService, SedeServicioService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-});
 
 
 var app = builder.Build();
